@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Email Verification</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h2>Email Verification</h2>
+    <form method="POST">
+        <input type="hidden" name="action" value="send_otp">
+        <input type="email" name="email" placeholder="Enter Email" required value="{{ email if email }}">
+        <button type="submit">Send OTP</button>
+    </form>
+
+    {% if otp_sent %}
+    <form method="POST">
+        <input type="hidden" name="action" value="verify_otp">
+        <input type="text" name="otp" placeholder="Enter OTP" required>
+        <button type="submit">Verify</button>
+    </form>
+    {% endif %}
+
+    {% if error %}
+    <p style="color:red;">{{ error }}</p>
+    {% endif %}
+</body>
+</html>
