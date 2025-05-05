@@ -62,13 +62,30 @@ def ocr_page_to_json(file_path, page=0):
     ) 
     print("model done")
     # print("resp",resp)
-    
+    doc_name = file_path.split("/")[-1]
+    question = "What is the Ocr result of the document?"
     text = resp["message"]["content"]
     print("text",text)
-    tmp_json = tempfile.NamedTemporaryFile(delete=False, suffix=".json")
-    with open(tmp_json.name, "w") as f:
-        json.dump({"Response": {"text": text}}, f)
-    return tmp_json.name
+    try:
+        conn = sqlite3.connect("chat_history.db")
+        c = conn.cursor()
+        c.execute("""
+            CREATE TABLE IF NOT EXISTS chats (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                document_name TEXT,
+                question TEXT,
+                answer TEXT,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        c.execute("INSERT INTO chats (document_name, question, answer) VALUES (?, ?, ?)",
+                (doc_name, question, text))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print("❌ Error saving chat:", e)
+    
+    return json.loads(text[text.find("```json")+7:text.find("}\n```")+1].replace("\n",""))
 
 
 # --- Smart loader ---
@@ -76,34 +93,31 @@ def smart_json_loader(file_path):
     schemas = ['.fullTextAnnotation.text', '.form[].text', '.data.text', '.text', '.pages[].text', '.document.text', '.results[].text']
     for schema in schemas:
         try:
-            loader = JSONLoader(file_path=file_path, jq_schema=schema, text_content=False)
+            loader = JSONLoader(file_path=file_path, text_content=False)
             data = loader.load()
             if data and any(d.page_content.strip() for d in data):
+                print(data)
                 return data
         except:
             continue
     raise ValueError("No valid schema found for document content.")
 
 # --- Process Document ---
-def process_document(file_obj, question):
+def process_document(doc_name, question):
     try:
-        file_path = file_obj.name
-        print(f"\n📄 Received file: {file_path}")
+        print(f"\n📄 Received file: {doc_name}")
         print(f"❓ Question: {question}")
-
-        if file_path.endswith((".pdf", ".png", ".jpg", ".jpeg")):
-            print("🔍 Running OCR via Google Vision...")
-            # file_path = ocr_page_to_json(file_path)
-
-            print(f"✅ OCR result saved to: {file_path}")
-
-        data = smart_json_loader(file_path)
-        merged_text = " ".join([doc.page_content.strip() for doc in data])
-        print(f"📚 Merged text length: {len(merged_text)} characters")
-
-        if not merged_text:
-            return "Document contains no extractable text content."
-
+        oquestion = "What is the Ocr result of the document?"
+        # sqlite query to get answer where document name is doc_name and question is question
+        conn = sqlite3.connect("chat_history.db")
+        c = conn.cursor()
+        c.execute("SELECT answer FROM chats WHERE document_name = ? AND question = ?", (doc_name, oquestion))
+        rows = c.fetchall()
+        conn.close()
+        merged_text = ""
+        if rows:
+            merged_text = " ".join([row[0] for row in rows])
+            print("🔍 Found in DB:", merged_text[:300], '...')
         prompt = f"""You are a helpful assistant. Extract the most relevant answer to the question from the document.
                 If not found, respond with \"Information not found in document\".
 
@@ -126,7 +140,7 @@ def process_document(file_obj, question):
         # result = llm_pipeline(prompt)[0]["generated_text"]
         print("🤖 Model raw output:", result[:300], '...')
 
-        answer_only = result.split("Answer:")[-1].strip()
+        answer_only = result["message"]["content"]
         return answer_only if answer_only else "Answer could not be generated."
 
     except Exception as e:
@@ -144,6 +158,7 @@ def upload_file():
         return jsonify({'error': 'No file selected'}), 400
 
     filename = secure_filename(file.filename)
+
     filepath = os.path.join(UPLOAD_FOLDER, filename)
     file.save(filepath)
     response = ocr_page_to_json(filepath)
@@ -157,15 +172,15 @@ def ask_question():
         return jsonify({}), 200
 
     data = request.get_json()
-    filepath = data.get('filepath')
+    doc_name = data.get('doc_name')
     question = data.get('question')
-
-    if not filepath or not question:
+    print("doc_name",doc_name)
+    print("question",question)  
+    if not doc_name or not question:
         return jsonify({'error': 'Missing file or question'}), 400
 
-    doc_name = os.path.basename(filepath)
-    with open(filepath, 'rb') as f:
-        answer = process_document(f, question)
+    
+    answer = process_document(f, question)
 
     # Save chat to DB
     try:

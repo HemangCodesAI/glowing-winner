@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const clearConvos = document.getElementById('clear-convos');
     const chatList = document.getElementById('chat-list');
     
-    let uploadedFile = null;
+    let doc_name = null;
     let recentChats = [];
     let isRecording = false;
     let mediaRecorder = null;
@@ -138,13 +138,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 },);
 
                 const data = await res.json();
-                uploadedFilePath = data.filepath;
+                doc_name = data.doc_name;
 
-                fileName.textContent = uploadedFile.name;
+                fileName.textContent = doc_name;
                 fileBadge.classList.remove('hidden');
+                console.log(doc_name)
                 welcomeContainer.classList.add('hidden');
-                addRecentChat(`${uploadedFile.name}`);
-                addMessage(`Uploaded ${uploadedFile.name}. What can you tell me about this document?`, 'user');
+                addRecentChat(`${doc_name}`);
+                addMessage(`Uploaded ${doc_name}. What can you tell me about this document?`, 'user');
             } catch (err) {
                 console.error('Upload failed', err);
                 addMessage('Failed to upload file.', 'assistant');
@@ -290,12 +291,12 @@ document.addEventListener('DOMContentLoaded', function() {
     async function processMessage(message) {
         showTypingIndicator();
 
-        try {
+        try {console.log(doc_name)
             const res = await fetch(`${API_BASE}/ask`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    filepath: uploadedFilePath,
+                    filepath: doc_name,
                     question: message
                 })
             });
