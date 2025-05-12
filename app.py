@@ -6,31 +6,18 @@ import base64
 from google import genai
 from google.genai import types
 import json
+from pdf2image import convert_from_path
+# import tempfile
+# import requests
+# from PIL import Image
+# from pydub import AudioSegment
+# from pydub.utils import which
+# import sqlite3
+# import traceback
+# import magic
+# import speech_recognition as sr
 
-# import ollama
-# import base64
 
-# # Step 1: Read and encode the image as base64
-# def encode_image_to_base64(image_path):
-#     with open(image_path, "rb") as img_file:
-#         return base64.b64encode(img_file.read()).decode("utf-8")
-
-# # Step 2: Send image and prompt to llava model via Ollama's Python SDK
-# def generate(image_path):
-#     image_b64 = encode_image_to_base64(image_path)
-    
-#     response = ollama.chat(
-#         model="gemma3:4b",
-#         messages=[
-#             {
-#                 "role": "user",
-#                 "content": """ocr the image and translate it to english.then process this letter in such a way that i get a json response . in which the problems of the person  who has written the letter is explained . set the key to be the department which should handle that problem and the key is one line summary of the problem . make as many key value pair as many there are problems""",
-#                 "images": [image_b64]
-#             }
-#         ]
-#     )
-    
-#     return response["message"]["content"]
 def generate(path):
     client = genai.Client(
         api_key=os.environ.get("GEMINI_API_KEY"),
@@ -128,7 +115,17 @@ UPLOAD_FOLDER = 'uploads'
 
 # Email OTP sender
 
+class PageImageProcessor:
+    def __init__(self, file_path):
+        self.file_path = file_path
 
+    def get_image_bytes(self, pagenum=0):
+        pages = convert_from_path(self.file_path)
+        if pagenum >= len(pages):
+            raise ValueError("Page number exceeds document.")
+        buffer = io.BytesIO()
+        pages[pagenum].save(buffer, format="PNG")
+        return buffer.getvalue()
 # Dummy image processing
 def process_image(path):
     response= generate(path)
@@ -176,7 +173,15 @@ def upload():
     session['history'] = []
     if request.method == 'POST':
         # image = request.files['image']
+        
         image = request.files['file']
+        if image.filename.endswith('.pdf'):
+            pdf_path = os.path.join(UPLOAD_FOLDER, image.filename)
+            image.save(pdf_path)
+            pdf = PageImageProcessor(pdf_path)
+            image_bytes = pdf.get_image_bytes()
+            image = Image.open(io.BytesIO(image_bytes))
+            pass
         filename = secure_filename(image.filename)
         filepath = f"{UPLOAD_FOLDER}/{filename}"
         image.save(filepath)
@@ -207,5 +212,6 @@ def chat():
         return jsonify({"answer": response})
     else:
         return jsonify({"response": "error"})
+
 if __name__ == '__main__':
     app.run(debug=True)
