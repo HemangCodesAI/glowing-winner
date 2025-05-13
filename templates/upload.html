@@ -961,16 +961,6 @@
                     headerRow.appendChild(th);
                 });
 
-                const th2 = document.createElement('th');
-                th2.textContent = 'Problems';
-                th2.style.backgroundColor = '#4CAF50';
-                th2.style.color = 'white';
-                th2.style.padding = '12px 15px';
-                th2.style.textAlign = 'left';
-
-                headerRow.appendChild(th1);
-                headerRow.appendChild(th2);
-
                 // Create table body
                 const tbody = table.createTBody();
                 Object.entries(data).forEach(([key, value]) => {
