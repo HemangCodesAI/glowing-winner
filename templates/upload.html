@@ -935,18 +935,31 @@
                 // Create a table
                 const table = document.createElement('table');
                 table.style.width = '100%';
-                table.style.borderCollapse = 'collapse';
-                table.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+                table.style.borderCollapse = 'separate';
+                table.style.borderSpacing = '0';
+                table.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+                table.style.borderRadius = '8px';
+                table.style.overflow = 'hidden';
+                table.style.marginTop = '20px';
+                table.style.fontFamily = 'Seoge UI, Arial, sans-serif';
+                table.style.fontSize = '15px';
+                table.style.backgroundColor = '#fff';
 
                 // Create table header
                 const thead = table.createTHead();
                 const headerRow = thead.insertRow();
-                const th1 = document.createElement('th');
-                th1.textContent = 'Departments';
-                th1.style.backgroundColor = '#4CAF50';
-                th1.style.color = 'white';
-                th1.style.padding = '12px 15px';
-                th1.style.textAlign = 'left';
+                const headers = ['Departments', 'Problems'];
+                headers.forEach(text => {
+                    const th = document.createElement('th');
+                    th.textContent = text;
+                    th.style.backgroundColor = '#007bff';
+                    th.style.color = 'white';
+                    th.style.padding = '14px 18px';
+                    th.style.textAlign = 'left';
+                    th.style.fontWeight = '600';
+                    th.style.letterSpacing = '0.5px';
+                    headerRow.appendChild(th);
+                });
 
                 const th2 = document.createElement('th');
                 th2.textContent = 'Problems';
@@ -962,31 +975,28 @@
                 const tbody = table.createTBody();
                 Object.entries(data).forEach(([key, value]) => {
                     const row = tbody.insertRow();
-                    row.style.borderBottom = '1px solid #ddd';
+                    row.style.backgroundColor = tbody.rows.length % 2 === 0 ? '#f7f9fc' : '#ffffff';
+                    row.style.transition = 'background-color 0.3s';
+
+                    row.addEventListener('mouseover', () => {
+                        row.style.backgroundColor = '#e9f2ff';
+                    });
+                    row.addEventListener('mouseout', () => {
+                        row.style.backgroundColor = tbody.rows.length % 2 === 0 ? '#f7f9fc' : '#ffffff';
+                    });
 
                     const td1 = row.insertCell();
                     td1.textContent = key;
-                    td1.style.padding = '12px 15px';
-                    td1.style.textAlign = 'left';
+                    td1.style.padding = '14px 18px';
 
                     const td2 = row.insertCell();
                     td2.textContent = value;
-                    td2.style.padding = '12px 15px';
-                    td2.style.textAlign = 'left';
+                    td2.style.padding = '14px 18px';
                 });
 
-                // Apply styles to table and container
-                table.style.marginTop = '20px';
-                table.style.fontFamily = 'Arial, sans-serif';
-                table.style.fontSize = '14px';
-                table.style.border = '1px solid #ddd';
+                //
 
                 // Add zebra-striping effect for table rows
-                Array.from(tbody.rows).forEach((row, index) => {
-                    if (index % 2 === 0) {
-                        row.style.backgroundColor = '#f9f9f9';
-                    }
-                });
 
                 // Append the table to the container
                 container.appendChild(table);
