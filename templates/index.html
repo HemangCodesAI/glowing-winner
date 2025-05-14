@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Image Processing</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #1d2b64, #f8cdda);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      position: relative;
+    }
+
+    .history-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      padding: 12px 20px;
+      background-color: #00c853;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s ease;
+      z-index: 10;
+    }
+
+    .history-btn:hover {
+      background-color: #00b342;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 40px;
+      width: 100%;
+      max-width: 600px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 30px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .upload-label {
+      background-color: #ffffff20;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 10px;
+      border: 2px dashed #ffffff60;
+      cursor: pointer;
+      margin-bottom: 20px;
+      transition: 0.3s;
+    }
+
+    .upload-label:hover {
+      background-color: #ffffff30;
+    }
+
+    #imageInput {
+      display: none;
+    }
+
+    .process-btn {
+      padding: 12px 30px;
+      background-color: #3d5afe;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .process-btn:hover {
+      background-color: #2e43e5;
+    }
+
+    .loader-wrapper {
+      margin-top: 30px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .loader {
+      border: 6px solid rgba(255,255,255,0.3);
+      border-top: 6px solid white;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 10px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+
+    .result-box {
+      margin-top: 40px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 15px;
+      padding: 20px;
+      animation: fadeIn 1s ease-in-out;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    }
+
+    .result-box table {
+      width: 100%;
+      border-collapse: collapse;
+      color: #fff;
+    }
+
+    .result-box th, .result-box td {
+      padding: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.3);
+      text-align: left;
+      font-size: 16px;
+    }
+
+    .result-box th {
+      font-weight: 600;
+      width: 40%;
+    }
+
+    .thumbnail {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .thumbnail:hover {
+      transform: scale(1.1);
+    }
+
+    #history-section {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.95);
+      color: #fff;
+      z-index: 999;
+      overflow-y: auto;
+      padding: 40px;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    #history-section .close-btn {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 32px;
+      color: #fff;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    #history-section h2 {
+      margin-bottom: 20px;
+    }
+
+    #history-section table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    #history-section th, #history-section td {
+      padding: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.3);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    #history-section pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    #imageModal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    #modalImage {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 10px;
+    }
+  </style>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <button onclick="toggleHistory()" class="history-btn">
+    <i class="fas fa-history"></i> Show History
+  </button>
+
+  <div class="container">
+    <h1><i class="fas fa-image"></i> Upload Image for Analysis</h1>
+
+    <form method="POST" enctype="multipart/form-data" onsubmit="showSpinner()">
+      <label for="imageInput" class="upload-label">
+        <i class="fas fa-cloud-upload-alt"></i> Choose an Image
+      </label>
+      <input id="imageInput" type="file" name="image" accept="image/*" required>
+      <button type="submit" class="process-btn"><i class="fas fa-cogs"></i> Process Image</button>
+    </form>
+
+    <div id="loader" class="loader-wrapper">
+      <div class="loader"></div>
+      <p>Processing image, please wait...</p>
+    </div>
+
+    {% if result and image %}
+    <div class="result-box">
+      <h2><i class="fas fa-table"></i> Analysis Result</h2>
+      <table>
+        <tbody>
+          {% for key, value in result.items() %}
+          <tr>
+            <th>{{ key }}</th>
+            <td>{{ value }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+  </div>
+
+ 
+  <div id="history-section">
+    <div class="close-btn" onclick="toggleHistory()"><span onclick="closeHistory()" class="close-btn">&times;</span></div>
+    <h2><i class="fas fa-clock"></i> Upload History</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Image</th>
+          <th>Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for img_path, json_data in history %}
+        <tr>
+          <td>
+            <img src="{{ url_for('static', filename=img_path) }}" alt="Uploaded Image"
+              class="thumbnail" onclick="showPreview(this.src)">
+          </td>
+          <td><pre>{{ json_data | tojson(indent=2) }}</pre></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+
+  <div id="imageModal" onclick="closeModal()">
+    <img id="modalImage">
+  </div>
+
+  <script>
+    function showSpinner() {
+      document.getElementById("loader").style.display = "flex";
+    }
+
+    function toggleHistory() {
+      const section = document.getElementById("history-section");
+      section.style.display = section.style.display === "none" ? "block" : "none";
+    }
+
+    function showPreview(src) {
+      const modal = document.getElementById("imageModal");
+      const img = document.getElementById("modalImage");
+      img.src = src;
+      modal.style.display = "flex";
+    }
+
+    function closeModal() {
+      document.getElementById("imageModal").style.display = "none";
+    }
+  </script>
+
+</body>
+</html>
