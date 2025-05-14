@@ -28,7 +28,7 @@ def generate(path):
         client.files.upload(file=path),
     ]
     model = "gemini-2.0-flash"
-    template="""
+    template = """
 
         **OCR and Translation**
 
@@ -113,20 +113,6 @@ app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 UPLOAD_FOLDER = 'uploads'
 
-# Email OTP sender
-
-class PageImageProcessor:
-    def __init__(self, file_path):
-        self.file_path = file_path
-
-    def get_image_bytes(self, pagenum=0):
-        pages = convert_from_path(self.file_path)
-        if pagenum >= len(pages):
-            raise ValueError("Page number exceeds document.")
-        buffer = io.BytesIO()
-        pages[pagenum].save(buffer, format="PNG")
-        return buffer.getvalue()
-# Dummy image processing
 def process_image(path):
     response= generate(path)
     print(response)
@@ -175,13 +161,7 @@ def upload():
         # image = request.files['image']
         
         image = request.files['file']
-        if image.filename.endswith('.pdf'):
-            pdf_path = os.path.join(UPLOAD_FOLDER, image.filename)
-            image.save(pdf_path)
-            pdf = PageImageProcessor(pdf_path)
-            image_bytes = pdf.get_image_bytes()
-            image = Image.open(io.BytesIO(image_bytes))
-            pass
+
         filename = secure_filename(image.filename)
         filepath = f"{UPLOAD_FOLDER}/{filename}"
         image.save(filepath)

@@ -1203,7 +1203,22 @@
             newChatBtn.addEventListener('click', function () {
                 // Clear chat area
                 chatbot.innerHTML = '';
-
+                const container = document.getElementById('welcome-container');
+                container.innerHTML=`<div class="welcome-header">
+                        <i class="fas fa-file-alt logo-large"></i>
+                        <h1>DastavejWizard</h1>
+                        <p class="welcome-subtitle">Upload a document and ask questions about its content</p>
+                    </div>
+                    <div class="welcome-actions">
+                        <button id="welcome-upload" class="welcome-button primary" >
+                            <i class="fas fa-upload"></i>
+                            <span>Upload document</span>
+                        </button>
+                        <input type="file" id="file-input" style="display: none;" />
+                        <div id="spinner" style="display: none;">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>`;
                 // Reset file
                 uploadedFile = null;
                 fileBadge.classList.add('hidden');
