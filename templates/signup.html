@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Signup with OTP - MultiLipi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            width: 350px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        input[type="email"], input[type="text"], input[id="Create_Password"],input[id="Enter_Password"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            margin-bottom: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .message {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Log In/Sign Up</h2>
+    <input type="email" id="email" placeholder="Email" required>
+    <button id="mailcheck" onclick="mailcheck()">Log In/Sign Up</button>
+
+    <div id="Password" style="display: none;">
+        <input type="text" id="Enter_Password" placeholder="Enter Password" style="display: none;" required>
+        <input type="text" id="Create_Password" placeholder="Create Password" style="display: none;" required>
+        <button id="SignUp-button" onclick="Signup()" style="display: none;">Sign Up</button>
+        <button id="LogIn-button" onclick="Login()" style="display: none;">Log In</button>
+    </div>
+
+    <div id="message" class="message"></div>
+</div>
+
+<script>
+    function mailcheck() {
+        const email = document.getElementById('email').value;
+        fetch('/mailcheck', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        })
+        .then(res => res.json())
+        .then(data => {
+            const msg = document.getElementById('message');
+            if (data.response=== 'SignIn') {
+                msg.textContent = "Log into existing account";
+                msg.className = "message success";
+                console.log(data.response);
+                document.getElementById('Password').style.display = 'block';
+                document.getElementById('Enter_Password').style.display = 'block';
+                document.getElementById('mailcheck').style.display = 'none';
+                document.getElementById('LogIn-button').style.display = 'block';
+                document.getElementById('SignUp-button').style.display = 'none';
+            }
+            else if (data.response === 'SignUp') {
+                msg.textContent = "Sign up for a new account";
+                msg.className = "message success";
+                console.log(data.response);
+                document.getElementById('Password').style.display = 'block';
+                document.getElementById('Create_Password').style.display = 'block';
+                document.getElementById('mailcheck').style.display = 'none';
+                document.getElementById('SignUp-button').style.display = 'block';
+                document.getElementById('LogIn-button').style.display = 'none';
+            }
+            
+           
+        });
+    }
+
+    function Signup() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('Create_Password').value;
+
+        fetch('/dosignup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        })
+        .then(res => res.json())
+        .then(data => {
+            const msg = document.getElementById('message');
+            if (data.message) {
+                msg.textContent = data.message;
+                msg.className = "message success";
+                 window.location.href = data.redirect;
+            } else {
+                msg.textContent = data.error || 'Signup failed';
+                msg.className = "message error";
+            }
+        });
+
+    }
+    
+    function Login() {
+        const msg = document.getElementById('message');
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('Enter_Password').value;
+        console.log(email, password);
+        fetch('/dologin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.response === 'Login Success') {
+                msg.textContent = data.response;
+                msg.className = "message success";
+                 window.location.href = data.redirect;
+            }
+            else if (data.response === 'Login Failed') {
+                msg.textContent = data.response;
+                msg.className = "message error";
+            }
+            
+        });
+    };
+</script>
+</body>
+</html>

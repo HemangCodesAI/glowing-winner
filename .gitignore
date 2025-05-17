@@ -1,5 +1,5 @@
-
-
+/__pycache__/
+database.db
 /env
 /uploads
 /testscripts
