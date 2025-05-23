@@ -1,43 +1,41 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from werkzeug.utils import secure_filename
 import utils
+import json
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 UPLOAD_FOLDER = 'uploads'
 utils.init_db()
 #home page
+@app.route('/')
+def signup():
+    return render_template('signup.html')
+
 @app.route('/home', methods=['GET', 'POST'])
 def upload():
-    session['history'] = []
     if request.method == 'POST':
         image = request.files['file']
         filename = secure_filename(image.filename)
         filepath = f"{UPLOAD_FOLDER}/{filename}"
         image.save(filepath)
         result,response = utils.process_image(filepath)
-        history = session.get("history", [])
-        history.append((filepath, str(response)))
-        session["history"] = history
-        return jsonify({"ans":result})
-    history = session.get("history", [])
-    return render_template('upload.html', result=None,histroy=history)
+        utils.add_to_ocr_db(session['email'], filename, str(result), str(response))
+        session['chat_id'] = filename
+        return jsonify({"ans":result,"chat_id":filename})
+    return render_template('upload.html', result=None,histroy=None)
 
 @app.route('/chat', methods=['GET', 'POST'])
 def chat():
     if request.method == 'POST':
         data = request.json
         message = data.get("message", "")
-        history = session.get("history", [])
-        lastresponse = history[-1][1] if history else None
-        response = utils.generate_chat(message, lastresponse)
+        ocr_text=utils.get_ocr_text(session['email'], session['chat_id'])
+        response = utils.generate_chat(message, ocr_text)
         # print(response)
+        utils.add_to_chat_db(session['email'], session['chat_id'], message, response)
         return jsonify({"answer": response})
     else:
         return jsonify({"response": "error"})
-
-@app.route('/')
-def signup():
-    return render_template('signup.html')
 
 @app.route('/mailcheck', methods=['POST'])
 def mailcheck():
@@ -69,5 +67,41 @@ def dologin():
         return jsonify({"response": "Login Success", "redirect": "/home"})
     else:
         return jsonify({"response": "Login Failed"})
+
+@app.route('/logout')
+def logout():
+    session.pop('email', None)
+    session.pop('chat_id', None)
+    return redirect(url_for('signup'))
+
+@app.route('/store-recent-chat', methods=['POST'])
+def store_recent_chat():
+    data = request.json
+    email = session.get('email')
+    chat_id = data
+    utils.add_recent_chat(email, chat_id)
+    return jsonify({"response": "Chat stored successfully"})
+
+@app.route('/delete-recent-chats', methods=['POST'])
+def delete_recent_chats():
+    data = request.json
+    email = session.get('email')
+    chat_id = data.get('chat_id', '')
+    utils.delete_recent_chat(email, chat_id)
+    return jsonify({"response": "Chat deleted successfully"})
+
+@app.route('/get-recent-chats', methods=['POST'])
+def get_recent_chats():
+    email = session.get('email')
+    recent_chats = utils.get_recent_chats(email)
+    return jsonify({"recent_chats": recent_chats})
+
+@app.route('/get-chat-history', methods=['POST'])
+def get_chat_history():
+    email = session.get('email')
+    chat_id = request.json
+    table, chat_history = utils.get_chat_history(email, chat_id)
+    return jsonify({"chats": chat_history,"table": json.loads(json.dumps(table))})
+
 if __name__ == '__main__':
     app.run(debug=True)

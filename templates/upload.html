@@ -585,9 +585,9 @@
                     <span id="file-name">No file</span>
                 </div>
                 <div id="loginbutton">
-                    <button id="login" class="sidebar-button primary">
+                    <button id="logout" class="welcome-button secondary" onclick="window.location.href='/logout'">
                         <i class="fas fa-user"></i>
-                        <span>Login</span>
+                        <span>Log Out</span>
                     </button>
                 </div>
             </header>
@@ -601,10 +601,10 @@
                         <p class="welcome-subtitle">Upload a document and ask questions about its content</p>
                     </div>
                     <div class="welcome-actions">
-                        <button id="welcome-upload" class="welcome-button primary" >
+                        <!-- <button id="welcome-upload" class="welcome-button primary" >
                             <i class="fas fa-upload"></i>
                             <span>Upload document</span>
-                        </button>
+                        </button> -->
                         <input type="file" id="file-input" style="display: none;" />
                         <div id="spinner" style="display: none;">
                             <div class="spinner"></div>
@@ -667,7 +667,7 @@
             const newChatBtn = document.getElementById('new-chat-btn');
             const clearConvos = document.getElementById('clear-convos');
             const chatList = document.getElementById('chat-list');
-            const welcomebutton = document.getElementById('welcome-upload');
+            // const welcomebutton = document.getElementById('welcome-upload');
 
             let uploadedFile = null;
             let recentChats = [];
@@ -818,88 +818,25 @@
                     }
                 }
             };
+
             sendButton.addEventListener("click", async () => {
                 sendMessage();
-                // const userMessage = messageInput.value.trim();
-
-                // if (userMessage) {
-                //     // Display user message
-                //     chat.scrollTop = chat.scrollHeight;
-                //     const userMessageDiv = `
-                //         <div class="chat-turn">
-                //             <div class="user-message">
-                //                 <div class="message-avatar">
-                //                     <i class="fas fa-user"></i>
-                //                 </div>
-                //                 <div class="message-content">
-                //                     <p>${userMessage}</p>
-                //                 </div>
-                //             </div>
-                //         </div>
-                //     `;
-                //     chatBotDiv.insertAdjacentHTML("beforeend", userMessageDiv);
-                //     messageInput.value = "";
-                //     scrollToBottom();
-
-                //     // Add a loading spinner for the assistant message
-                //     const loadingMessageDiv = `
-                //         <div class="chat-turn assistant-turn">
-                //             <div class="assistant-message">
-                //                 <div class="message-avatar">
-                //                     <i class="fas fa-robot"></i>
-                //                 </div>
-                //                 <div class="message-content">
-                //                     <div id="spinner" style="display: block;">
-                //                         <div class="spinner"></div>
-                //                     </div>
-                //                 </div>
-                //             </div>
-                //         </div>
-                //     `;
-                //     chatBotDiv.insertAdjacentHTML("beforeend", loadingMessageDiv);
-                //     scrollToBottom();
-
-                //     try {
-                //         // Call the /chat route
-                //         const response = await fetch("/chat", {
-                //             method: "POST",
-                //             headers: {
-                //                 "Content-Type": "application/json",
-                //             },
-                //             body: JSON.stringify({ message: userMessage }),
-                //         });
-
-                //         const data = await response.json();
-
-                //         // Find the last inserted spinner and replace it with the assistant's response
-                //         const loadingDiv = chatBotDiv.querySelector(".assistant-turn:last-child .message-content #spinner");
-                //         loadingDiv.parentElement.innerHTML = `
-
-                //                 <div class="message-content">
-                //                     ${marked.parse(data.answer)}
-                //                 </div>
-
-                //         `;
-                //         scrollToBottom();
-                //     } catch (error) {
-                //         console.error("Error fetching chat response:", error);
-                //     }
-                // }
+                
             });
+ 
+            // welcomebutton.addEventListener('click', function () {
+            //     document.getElementById('file-input').click();
+            // });
 
-
-           
-            welcomebutton.addEventListener('click', function () {
-                document.getElementById('file-input').click();
-            });
             fileButton.addEventListener('click', function () {
                 document.getElementById('file-input').click();
             });
+
             document.getElementById('file-input').addEventListener('change', async function () {
                 const file = this.files[0];
                 if (!file) return;
-                const button = document.getElementById('welcome-upload');
-                button.style.display = 'none';
+                // const button = document.getElementById('welcome-upload');
+                // button.style.display = 'none';
                 const formData = new FormData();
                 formData.append('file', file);
 
@@ -907,7 +844,7 @@
                 spinner.style.display = 'block';  // Show spinner
 
                 try {
-                    const response = await fetch('/', {
+                    const response = await fetch('/home', {
                         method: 'POST',
                         body: formData
                     });
@@ -916,7 +853,7 @@
                         const result = await response.json();
                         console.log(result);
                         updateTable(result.ans);
-                        addRecentChat(file.name);
+                        addRecentChat(result.chat_id);
                     } else {
                         alert('Upload failed: ' + response.statusText);
                     }
@@ -932,6 +869,19 @@
 
                 // Clear any existing content in the container
                 container.innerHTML = '';
+                console.log(data)
+                if (typeof data === 'string'){
+                    // If data is a string, parse it as JSON
+                    try {
+                        data = JSON.parse(data.replace(/'/g, '"'));
+                    } catch (e) {
+                        console.error("Failed to parse JSON:", e);
+                        container.innerHTML = '<p>Error parsing data</p>';
+                        return;
+                    }
+                }
+                
+                
 
                 if (typeof data !== 'object' || data === null || Object.keys(data).length === 0) {
                     container.innerHTML = '<p>No data available</p>';
@@ -998,127 +948,19 @@
                 container.appendChild(table);
             }
 
-            // micButton.addEventListener('click', toggleRecording);
-            
-            
-            
-            // mic not working
-            // Function to toggle recording
-            function toggleRecording() {
-                if (isRecording) {
-                    stopRecording();
-                } else {
-                    startRecording();
-                }
-            }
-
-            // Function to start recording
-            async function startRecording() {
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    mediaRecorder = new MediaRecorder(stream);
-                    audioChunks = [];
-
-                    mediaRecorder.ondataavailable = (e) => {
-                        if (e.data.size > 0) audioChunks.push(e.data);
-                    };
-
-                    mediaRecorder.onstop = async () => {
-                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                        micButton.classList.remove('recording');
-                        isRecording = false;
-
-                        // Upload audioBlob to backend for transcription
-                        const formData = new FormData();
-                        formData.append('audio', audioBlob, 'recording.webm');
-
-                        try {
-                            const res = await fetch(`/transcribe`, {
-                                method: 'POST',
-                                body: formData
-                            });
-                            const data = await res.json();
-
-                            if (data && data.transcript) {
-                                messageInput.value = data.transcript;
-                                messageInput.dispatchEvent(new Event('input'));
-                                messageInput.focus();
-                            } else {
-                                alert("Could not transcribe audio.");
-                            }
-                        } catch (err) {
-                            console.error("Transcription error:", err);
-                            alert("Error sending audio to backend.");
-                        }
-                    };
-
-                    mediaRecorder.start();
-                    isRecording = true;
-                    micButton.classList.add('recording');
-
-                } catch (err) {
-                    console.error("Error accessing microphone:", err);
-                    alert("Microphone access denied or unavailable.");
-                }
-            }
-
-
-            // Function to stop recording
-            function stopRecording() {
-                if (mediaRecorder && isRecording) {
-                    mediaRecorder.stop();
-                    isRecording = false;
-                    micButton.classList.remove('recording');
-
-                    // Stop all audio tracks
-                    mediaRecorder.stream.getTracks().forEach(track => track.stop());
-                }
-            }
-
-            // Function to send a message
-            
-            function showTypingIndicator() {
-                const typingIndicator = document.createElement('div');
-                typingIndicator.className = 'message assistant typing';
-                typingIndicator.id = 'typing-indicator';
-
-                const bubble = document.createElement('div');
-                bubble.className = 'typing-bubble';
-                for (let i = 0; i < 3; i++) {
-                    const dot = document.createElement('div');
-                    dot.className = 'dot';
-                    bubble.appendChild(dot);
-                }
-
-                typingIndicator.appendChild(bubble);
-                chatbot.appendChild(typingIndicator);
-                chatbot.scrollTop = chatbot.scrollHeight;
-            }
-
-            function hideTypingIndicator() {
-                const typingIndicator = document.getElementById('typing-indicator');
-                if (typingIndicator) {
-                    typingIndicator.remove();
-                }
-            }
-
-
-
-
-           
             // Function to add a chat to recent chats
             function addRecentChat(title) {
                 // Add to memory
-                const chatId = 'chat-' + Date.now();
-                const chat = {
-                    id: chatId,
-                    title: title
-                };
-
-                recentChats.unshift(chat);
-
-                // Store in local storage
-                localStorage.setItem('recentChats', JSON.stringify(recentChats));
+                console.log(title)
+                recentChats.unshift(title);
+                // store in db
+                fetch('/store-recent-chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify( title )
+                })
 
                 // Update UI
                 updateRecentChats();
@@ -1139,11 +981,11 @@
                 recentChats.forEach(chat => {
                     const chatItem = document.createElement('div');
                     chatItem.className = 'chat-item';
-                    chatItem.dataset.id = chat.id;
+                    chatItem.dataset.id = chat;
 
                     const chatTitle = document.createElement('div');
                     chatTitle.className = 'chat-title';
-                    chatTitle.textContent = chat.title;
+                    chatTitle.textContent = chat;
 
                     const deleteBtn = document.createElement('button');
                     deleteBtn.className = 'delete-chat';
@@ -1151,60 +993,90 @@
 
                     deleteBtn.addEventListener('click', function (e) {
                         e.stopPropagation();
-                        deleteChat(chat.id);
+                        deleteChat(chat);
                     });
 
                     chatItem.appendChild(chatTitle);
                     chatItem.appendChild(deleteBtn);
 
                     chatItem.addEventListener('click', function () {
-                        loadChat(chat.id);
+                        loadChat(chat);
                     });
 
                     chatList.appendChild(chatItem);
                 });
             }
-
+            
             // Function to delete a chat
             function deleteChat(chatId) {
-                recentChats = recentChats.filter(chat => chat.id !== chatId);
-                localStorage.setItem('recentChats', JSON.stringify(recentChats));
+                recentChats = recentChats.filter(chat => chat !== chatId);
+                // update in db
+                fetch('/delete-recent-chats', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ chatId })
+                })
                 updateRecentChats();
             }
 
             // Function to load a chat
-            async function loadChat(chatId) {
-                const chat = recentChats.find(chat => chat.id === chatId);
-                if (chat) {
-                    uploadedFile = { name: chat.title };
+            function loadChat(chatId) {
+                if (chatId) {
+                    uploadedFile = { name: chatId };
                     fileName.textContent = uploadedFile.name;
                     fileBadge.classList.remove('hidden');
-                    welcomeContainer.classList.add('hidden');
+                    // welcomeContainer.classList.add('hidden');    
 
                     chatbot.innerHTML = '';
 
                     try {
-                        const res = await fetch(`${API_BASE}/history/${chat.title}`);
-                        console.log(res)
-                        const history = await res.json();
-
-                        console.log(history)
-
-                        if (Array.isArray(history)) {
-                            history.reverse().forEach(entry => {
-                                addMessage(entry.question, 'user');
-                                addMessage(entry.answer, 'assistant');
-                            });
-                        } else {
-                            addMessage("Could not load chat history.", 'assistant');
-                        }
+                        fetch(`/get-chat-history`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(chatId)
+                        })
+                        .then(response => response.json())
+                        .then(data =>{
+                            const chat_history = data.chats;
+                            const table = data.table;
+                            // console.log(data)
+                            updateTable(table);
+                            if (Array.isArray(chat_history)) {
+                                chat_history.forEach(entry => {
+                                    addMessage(entry.question, 'user');
+                                    addMessage(entry.answer, 'assistant');
+                                });
+                            } else {
+                                addMessage("Could not load chat history.", 'assistant');
+                            }
+                        })
                     } catch (err) {
                         console.error("Failed to load history:", err);
                         addMessage("Failed to fetch chat history from server.", 'assistant');
                     }
                 }
             }
-
+            
+            function addMessage(message, type) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `chat-turn ${type}-turn`;
+                messageDiv.innerHTML = `
+                    <div class="${type}-message">
+                        <div class="message-avatar">
+                            <i class="fas fa-${type === 'user' ? 'user' : 'robot'}"></i>
+                        </div>
+                        <div class="message-content">
+                            ${marked.parse(message)}
+                        </div>
+                    </div>
+                `;
+                chatbot.appendChild(messageDiv);
+                scrollToBottom();
+            }
             // New chat button
             newChatBtn.addEventListener('click', function () {
                 // Clear chat area
@@ -1216,10 +1088,7 @@
                         <p class="welcome-subtitle">Upload a document and ask questions about its content</p>
                     </div>
                     <div class="welcome-actions">
-                        <button id="welcome-upload" class="welcome-button primary" >
-                            <i class="fas fa-upload"></i>
-                            <span>Upload document</span>
-                        </button>
+                        
                         <input type="file" id="file-input" style="display: none;" />
                         <div id="spinner" style="display: none;">
                             <div class="spinner"></div>
@@ -1231,6 +1100,8 @@
 
                 // Show welcome screen
                 welcomeContainer.classList.remove('hidden');
+                // refresh the page
+                location.reload();
             });
 
             // Clear conversations button
@@ -1244,16 +1115,15 @@
 
             // Load recent chats from storage
             function loadRecentChats() {
-                const savedChats = localStorage.getItem('recentChats');
-                if (savedChats) {
-                    try {
-                        recentChats = JSON.parse(savedChats);
+                // load fron backend
+                fetch('/get-recent-chats',{method: 'POST'})
+                    .then(response => response.json())
+                    .then(data => {
+                        recentChats = data.recent_chats || [];
                         updateRecentChats();
-                    } catch (e) {
-                        console.error('Error loading recent chats:', e);
-                        localStorage.removeItem('recentChats');
-                    }
-                }
+                    })
+                    
+                
             }
 
             // Initialize
