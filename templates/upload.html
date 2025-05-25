@@ -897,14 +897,14 @@
                 table.style.borderRadius = '8px';
                 table.style.overflow = 'hidden';
                 table.style.marginTop = '20px';
-                table.style.fontFamily = 'Seoge UI, Arial, sans-serif';
+                table.style.fontFamily = 'Segoe UI, Arial, sans-serif';
                 table.style.fontSize = '15px';
                 table.style.backgroundColor = '#fff';
 
                 // Create table header
                 const thead = table.createTHead();
                 const headerRow = thead.insertRow();
-                const headers = ['Departments', 'Problems'];
+                const headers = ['Department', 'Problem', 'Explanation'];
                 headers.forEach(text => {
                     const th = document.createElement('th');
                     th.textContent = text;
@@ -931,23 +931,22 @@
                         row.style.backgroundColor = tbody.rows.length % 2 === 0 ? '#f7f9fc' : '#ffffff';
                     });
 
-                    const td1 = row.insertCell();
-                    td1.textContent = key;
-                    td1.style.padding = '14px 18px';
+                    const tdDept = row.insertCell();
+                    tdDept.textContent = value.department;
+                    tdDept.style.padding = '14px 18px';
 
-                    const td2 = row.insertCell();
-                    td2.textContent = value;
-                    td2.style.padding = '14px 18px';
+                    const tdKey = row.insertCell();
+                    tdKey.textContent = key.replace("_"," ");
+                    tdKey.style.padding = '14px 18px';
+
+                    const tdExplanation = row.insertCell();
+                    tdExplanation.textContent = value.explanation;
+                    tdExplanation.style.padding = '14px 18px';
                 });
-
-                //
-
-                // Add zebra-striping effect for table rows
 
                 // Append the table to the container
                 container.appendChild(table);
             }
-
             // Function to add a chat to recent chats
             function addRecentChat(title) {
                 // Add to memory
@@ -1107,9 +1106,18 @@
             // Clear conversations button
             clearConvos.addEventListener('click', function () {
                 if (confirm('Are you sure you want to clear all conversations?')) {
+                    // Clear recent chats array
                     recentChats = [];
-                    localStorage.removeItem('recentChats');
+                    let chatId = 'aLl'; 
+                    fetch('/delete-recent-chats', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ chatId })
+                })
                     updateRecentChats();
+                    location.reload();
                 }
             });
 

@@ -86,7 +86,8 @@ def store_recent_chat():
 def delete_recent_chats():
     data = request.json
     email = session.get('email')
-    chat_id = data.get('chat_id', '')
+    chat_id = data.get('chatId', '')
+    # print(email, chat_id)
     utils.delete_recent_chat(email, chat_id)
     return jsonify({"response": "Chat deleted successfully"})
 

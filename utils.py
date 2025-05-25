@@ -41,20 +41,26 @@ def delete_recent_chat(email, chat_id):
     # Check if the row exists
     cursor.execute("SELECT chat_ids FROM recent_chat WHERE email = ?", (email,))
     row = cursor.fetchone()
-
-    if row is not None:
-        # Remove the chat_id from the list
-        existing_chat_ids = json.loads(row[0]) if row[0] else []
-        if chat_id in existing_chat_ids:
-            existing_chat_ids.remove(chat_id)
-            cursor.execute(
-                "UPDATE recent_chat SET chat_ids = ? WHERE email = ?",
-                (json.dumps(existing_chat_ids), email)
-            )
-            print("Chat ID removed from existing entry.")
-        else:
-            print("Chat ID not found in the list.")
-
+    # print("Deleting recent chat for email:", email, "chat_id:", chat_id)
+    if chat_id != "aLl":
+        if row is not None:
+            # Remove the chat_id from the list
+            existing_chat_ids = json.loads(row[0]) if row[0] else []
+            # print(existing_chat_ids)
+            # print(chat_id)
+            if chat_id in existing_chat_ids:
+                existing_chat_ids.remove(chat_id)
+                cursor.execute(
+                    "UPDATE recent_chat SET chat_ids = ? WHERE email = ?",
+                    (json.dumps(existing_chat_ids), email)
+                )
+                print("Chat ID removed from existing entry.")
+            else:
+                print("Chat ID not found in the list.")
+    else:
+        # If chat_id is "aLl", delete the entire row
+        cursor.execute("DELETE FROM recent_chat WHERE email = ?", (email,))
+        print("All recent chats deleted for email:", email)
     conn.commit()
     conn.close()
     print("Recent chat deleted.", chat_id)
@@ -270,10 +276,22 @@ def generate(path):
 
         ```json
         {
-        "[Key 1]": "[Explanation of Key 1]",
-        "[Key 2]": "[Explanation of Key 2]",
-        "[Key 3]": "[Explanation of Key 3]",
-        "[Key 4]": "[Explanation of Key 4]"
+            "[problem 1 title ]": {
+                "explanation": "[Explanation of problem 1]",
+                "department": "[Responsible Department for problem 1]"
+            },
+            "[problem 2 title]": {
+                "explanation": "[Explanation of prblem 2]",
+                "department": "[Responsible Department for problem 2]"
+            },
+            "[problem 3 title]": {
+                "explanation": "[Explanation of prblem 3]",
+                "department": "[Responsible Department for problem 3]"
+            },
+            "[problem 4 title]": {
+                "explanation": "[Explanation of prblem 4]",
+                "department": "[Responsible Department for problem 4]"
+            }   
         }
         ```
 
@@ -281,28 +299,28 @@ def generate(path):
 
         **Detailed Explanation of the Problems and Suggestions**
 
-        1. **\[Key 1] (Key: `[Key 1]`)**
+        1. **\[problem 1] **
 
-        * **Problem:** \[Describe the problem related to Key 1]
-        * **JSON Summary:** "\[Explanation of Key 1]"
+        * **Problem:** \[Describe the problem related to problem 1]
+        * **JSON Summary:** "\[Explanation of problem 1]"
         * **Why it's a problem:** \[Explain why it's a problem]
 
-        2. **\[Key 2] (Key: `[Key 2]`)**
+        2. **\[problem 2] (problem: `[problem 2]`)**
 
-        * **Problem:** \[Describe the problem related to Key 2]
-        * **JSON Summary:** "\[Explanation of Key 2]"
+        * **Problem:** \[Describe the problem related to problem 2]
+        * **JSON Summary:** "\[Explanation of problem 2]"
         * **Why it's a problem:** \[Explain why it's a problem]
 
-        3. **\[Key 3] (Key: `[Key 3]`)**
+        3. **\[problem 3] (problem: `[problem 3]`)**
 
-        * **Problem:** \[Describe the problem related to Key 3]
-        * **JSON Summary:** "\[Explanation of Key 3]"
+        * **Problem:** \[Describe the problem related to problem 3]
+        * **JSON Summary:** "\[Explanation of problem 3]"
         * **Why it's a problem:** \[Explain why it's a problem]
 
-        4. **\[Key 4] (Key: `[Key 4]`)**
+        4. **\[problem 4] (problem: `[problem 4]`)**
 
-        * **Problem:** \[Describe the problem related to Key 4]
-        * **JSON Summary:** "\[Explanation of Key 4]"
+        * **Problem:** \[Describe the problem related to problem 4]
+        * **JSON Summary:** "\[Explanation of problem 4]"
         * **Why it's a problem:** \[Explain why it's a problem]
 
         ---
@@ -316,7 +334,26 @@ def generate(path):
                     file_uri=files[0].uri,
                     mime_type=files[0].mime_type,
                 ),
-                types.Part.from_text(text=f"""ocr the image and translate it to english.then process this letter in such a way that i get a json response . in which the problems of the person  who has written the letter is explained . set the key to be the department which should handle that problem and the key is one line summary of the problem . make as many key value pair as many there are problems.answer should be strictly in this format:{template}"""),
+                types.Part.from_text(text=f"""ocr the image and translate it to english.then process this letter in such a way that i get a json response .which is this format:a JSON object in the following format:{template}
+
+                Use only the following departments:
+                - Dept. of Home Affairs
+                - Dept. of Railways
+                - Municipal Corporation / Urban Local Bodies
+                - Dept. of Food and Civil Supplies
+                - Dept. of Road Transport and Highways
+                - Dept. of Power
+                - Dept. of Education
+                - Dept. of Health and Family Welfare
+                - Revenue Department
+                - Dept. of Labour and Employment
+                - Miscellaneous
+
+                Guidelines:
+                - the titles of the problems should be space separated and not contain any special characters.even in the keys of the json.
+                - Keep the explanation concise (1–2 lines max).
+                - Classify each title under the most appropriate department.
+                - Use 'Miscellaneous' only if it doesn’t fall under any given department."""),
             ],
         ),
     ]
