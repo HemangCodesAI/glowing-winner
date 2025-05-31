@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rajasthan Sampark - New Grievance Registration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e8f4f8;
+            color: #333;
+            margin: 0;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+            color: white;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .nav-section {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+
+        .nav-item {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 15px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 25px auto;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid #e3f2fd;
+        }
+
+        .form-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: #1565c0;
+            border-bottom: 2px solid #e3f2fd;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .required {
+            color: red;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #c8e6c9;
+            border-radius: 6px;
+            font-size: 14px;
+            background: #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #1e88e5;
+            box-shadow: 0 0 8px rgba(30, 136, 229, 0.25);
+            background: #f8fffe;
+        }
+
+        select.form-control {
+            cursor: pointer;
+        }
+
+        .textarea-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .char-counter {
+            text-align: right;
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .location-section {
+            border: 1px solid #b3e5fc;
+            padding: 20px;
+            border-radius: 8px;
+            background: linear-gradient(145deg, #f0f9ff 0%, #e1f5fe 100%);
+            margin-bottom: 20px;
+        }
+
+        .location-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #0d47a1;
+        }
+
+        .address-helper {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(145deg, #546e7a 0%, #455a64 100%);
+            color: white;
+            border: none;
+            padding: 9px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(145deg, #455a64 0%, #37474f 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .area-type-toggle {
+            display: flex;
+            gap: 25px;
+            margin-bottom: 20px;
+            background: #ffffff;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #e8f5e8;
+        }
+
+        .radio-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .radio-group input[type="radio"] {
+            margin: 0;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .map-section {
+            margin: 15px 0;
+        }
+
+        .btn-map {
+            background: linear-gradient(145deg, #00acc1 0%, #0097a7 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .btn-map:hover {
+            background: linear-gradient(145deg, #0097a7 0%, #00838f 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .upload-section {
+            border: 2px dashed #81c784;
+            padding: 25px;
+            text-align: center;
+            border-radius: 8px;
+            margin: 20px 0;
+            background: linear-gradient(145deg, #f1f8e9 0%, #e8f5e8 100%);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-section:hover {
+            border-color: #66bb6a;
+            background: linear-gradient(145deg, #e8f5e8 0%, #dcedc8 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(145deg, #1e88e5 0%, #1565c0 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 30px;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(30, 136, 229, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(145deg, #1565c0 0%, #0d47a1 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(30, 136, 229, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 15px;
+                padding: 20px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-section {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo-section">
+            Rajasthan Sampark
+        </div>
+        <div class="nav-section">
+            <a href="#" class="nav-item">Dashboard</a>
+            <a href="#" class="nav-item">Services & Schemes</a>
+            <a href="#" class="nav-item">Grievances</a>
+            <a href="#" class="nav-item">Profile</a>
+        </div>
+        <div class="user-info">
+            <span>Hemang Joshi</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1 class="form-title">New Grievance Registration</h1>
+        
+        <form id="grievanceForm">
+            <!-- Department and Grievance Description -->
+            <div class="form-group">
+                <label class="form-label">Department <span class="required">*</span></label>
+                <label class="form-label" style="font-size: 12px; color: #666; font-weight: normal;">Department and Grievance Description</label>
+                <input class="form-control" id="department"  required>
+                    
+                
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Subject <span class="required">*</span></label>
+                <input class="form-control" id="subject" required>
+                    
+                
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Grievance Details <span class="required">*</span></label>
+                <textarea class="form-control textarea-control" id="grievanceDetails" value="{{ form_data.grievance_details }}" maxlength="2000" required></textarea>
+                <div class="char-counter"><span id="charCount">0</span> / 2000</div>
+            </div>
+
+            <!-- Location Section -->
+            <div class="location-section">
+                <div class="location-title">Location concerned to Grievance</div>
+                
+                <div class="address-helper">
+                    <button type="button" class="btn-secondary" onclick="useMyAddress()">Use My Address</button>
+                    <button type="button" class="btn-secondary">Search By Location Name</button>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Area Type</label>
+                    <div class="area-type-toggle">
+                        <div class="radio-group">
+                            <input type="radio" id="urban" name="areaType" value="urban" checked>
+                            <label for="urban">Urban</label>
+                        </div>
+                        <div class="radio-group">
+                            <input type="radio" id="rural" name="areaType" value="rural">
+                            <label for="rural">Rural</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Enter Location Name" id="locationName">
+                </div>
+
+
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">District <span class="required">*</span></label>
+                        <input class="form-control" id="district" required>
+                        
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Block/Panchayat Samiti <span class="required">*</span></label>
+                        <input class="form-control" id="block" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Gram Panchayat <span class="required">*</span></label>
+                        <input class="form-control" id="gramPanchayat" required>
+                        
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Village <span class="required">*</span></label>
+                        <input class="form-control" id="village" required>
+                        
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Grievance Area (Home Address, House Number, Landmark)</label>
+                    <input type="text" class="form-control" placeholder="Enter Grievance Area (Home Address, House Number, Landmark)" maxlength="100" id="grievanceArea">
+                    <div class="char-counter"><span id="areaCharCount">0</span> / 100</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Pincode</label>
+                    <input type="text" class="form-control" placeholder="Enter Pincode" maxlength="6" id="pincode">
+                    <div class="char-counter"><span id="pincodeCharCount">0</span> / 6</div>
+                </div>
+
+                <div class="map-section">
+                    <button type="button" class="btn-map" onclick="openMap()">📍 Pin point location on Map</button>
+                    <button type="button" class="btn-map" style="margin-left: 10px;">Open Map</button>
+                </div>
+            </div>
+
+            <!-- Upload Section -->
+            <div class="form-group">
+                <label class="form-label">Upload Images or Videos to support your grievance</label>
+                <div class="upload-section" onclick="document.getElementById('fileUpload').click()">
+                    <div style="margin-bottom: 10px;">📁</div>
+                    <div>Click to Upload</div>
+                    <input type="file" id="fileUpload" style="display: none;" multiple accept="image/*,video/*">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Previous Grievance Number (If already registered)</label>
+                <input type="text" class="form-control" maxlength="20" id="previousGrievance">
+                <div class="char-counter"><span id="prevCharCount">0</span> / 20</div>
+            </div>
+
+            <button type="submit" class="btn-primary">Submit Grievance</button>
+        </form>
+    </div>
+
+    <script>
+        // Character counters
+        document.getElementById('grievanceDetails').addEventListener('input', function() {
+            document.getElementById('charCount').textContent = this.value.length;
+        });
+
+        document.getElementById('grievanceArea').addEventListener('input', function() {
+            document.getElementById('areaCharCount').textContent = this.value.length;
+        });
+
+        document.getElementById('pincode').addEventListener('input', function() {
+            document.getElementById('pincodeCharCount').textContent = this.value.length;
+        });
+
+        document.getElementById('previousGrievance').addEventListener('input', function() {
+            document.getElementById('prevCharCount').textContent = this.value.length;
+        });
+
+        // use form_data to populate the form
+        document.addEventListener('DOMContentLoaded', function() {
+            const formData = {{ form_data | tojson |safe }};
+            let jformData=JSON.parse(formData)
+            console.log("Department value:", jformData.Department);
+console.log("Type of formData:", typeof jformData);
+            
+            // formData=JSON.parse(formData.replace("None",null))
+            if (formData) {
+                document.getElementById('department').value = jformData.Department;
+                document.getElementById('subject').value = jformData.subject || '';
+                document.getElementById('grievanceDetails').value = jformData.grievance_details || '';
+                // select the right option in area type
+                const areaTypeValue = String(jformData.area_type).toLowerCase()
+                const radioToSelect = document.querySelector(`input[name="areaType"][value="${areaTypeValue}"]`);
+                
+                if (radioToSelect) {
+                    radioToSelect.checked = true;
+                }
+                document.getElementById('locationName').value = jformData.loaction || '';
+                document.getElementById('district').value = jformData.district || '';
+
+
+                document.getElementById('block').value = jformData.block || '';
+                document.getElementById('gramPanchayat').value = jformData.gram_panchayat || '';
+                document.getElementById('village').value = jformData.village || '';
+                document.getElementById('grievanceArea').value = jformData.grievance_area || '';
+                document.getElementById('pincode').value = jformData.pincode || '';
+                document.getElementById('previousGrievance').value = jformData.previous_grievance || '';
+            }
+        });
+    </script>
+</body>
+</html>

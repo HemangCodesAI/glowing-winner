@@ -104,5 +104,10 @@ def get_chat_history():
     table, chat_history = utils.get_chat_history(email, chat_id)
     return jsonify({"chats": chat_history,"table": json.loads(json.dumps(table))})
 
+@app.route('/web-form', methods=['GET', 'POST'])
+def web_form():
+    form_data = utils.get_form_data(session.get('email'),session.get('chat_id'))
+    print(form_data)
+    return render_template('web_form.html', form_data=json.loads(json.dumps(form_data)))
 if __name__ == '__main__':
     app.run(debug=True)

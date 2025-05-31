@@ -259,19 +259,6 @@ def generate(path):
     model = "gemini-2.0-flash"
     template = """
 
-        **OCR and Translation**
-
-        **Original OCR:**
-
-        ```
-        [Insert OCR Text Here]
-        ```
-
-        **Translated Text:**
-        ```
-        [Insert english translated Text Here]
-        ```
-
         **JSON Response:**
 
         ```json
@@ -294,35 +281,22 @@ def generate(path):
             }   
         }
         ```
-
-        ---
-
-        **Detailed Explanation of the Problems and Suggestions**
-
-        1. **\[problem 1] **
-
-        * **Problem:** \[Describe the problem related to problem 1]
-        * **JSON Summary:** "\[Explanation of problem 1]"
-        * **Why it's a problem:** \[Explain why it's a problem]
-
-        2. **\[problem 2] (problem: `[problem 2]`)**
-
-        * **Problem:** \[Describe the problem related to problem 2]
-        * **JSON Summary:** "\[Explanation of problem 2]"
-        * **Why it's a problem:** \[Explain why it's a problem]
-
-        3. **\[problem 3] (problem: `[problem 3]`)**
-
-        * **Problem:** \[Describe the problem related to problem 3]
-        * **JSON Summary:** "\[Explanation of problem 3]"
-        * **Why it's a problem:** \[Explain why it's a problem]
-
-        4. **\[problem 4] (problem: `[problem 4]`)**
-
-        * **Problem:** \[Describe the problem related to problem 4]
-        * **JSON Summary:** "\[Explanation of problem 4]"
-        * **Why it's a problem:** \[Explain why it's a problem]
-
+        **form data**
+        ```json
+        {
+            "Department": "[Department responsible for the grievance]",
+            "subject": "[Subject of the grievance]",
+            "grievance_details": "[Details of the grievance]",
+            "area_type": "[Urban or Rural]",
+            "loaction": "[Location of the person]",
+            "district": "[District of the person]",
+            "block": "[Block of the person]",
+            "gram_panchayat": "[Gram Panchayat of the person]",
+            "village": "[Village of the person]",
+            "home_address": "[Home address of the person]",
+            "pincode": "[Pincode of the person]",
+        }
+        ```
         ---
 
         """
@@ -334,25 +308,36 @@ def generate(path):
                     file_uri=files[0].uri,
                     mime_type=files[0].mime_type,
                 ),
-                types.Part.from_text(text=f"""ocr the image and translate it to english.then process this letter in such a way that i get a json response .which is this format:a JSON object in the following format:{template}
+                types.Part.from_text(text=f"""you are given a documnet in imageor pdf format, go thru it using ocr.i want to extracct some key information form this documnet i want to get a json response .which is in this format:{template}
 
                 Use only the following departments:
-                - Dept. of Home Affairs
-                - Dept. of Railways
-                - Municipal Corporation / Urban Local Bodies
-                - Dept. of Food and Civil Supplies
-                - Dept. of Road Transport and Highways
-                - Dept. of Power
-                - Dept. of Education
-                - Dept. of Health and Family Welfare
-                - Revenue Department
-                - Dept. of Labour and Employment
-                - Miscellaneous
+                - Public Health Engineering
+                - Panchayati Raj
+                - local Self Government(Municipal Bodies)
+                - Revenue
+                - Social Justice & Empowerment
+                - Food Civil Supplies & Consumer Affairs Department
+                - Police
+                - Manrega
+                - Rural Development
+                - Medical & Health
+                - Cooperative
+                - Skills,Employment & Entrepreneurship
+                -Public Works (PWD)
+                -Labour
+                -Women & Child Development-Directorate ICDS
+                -Secondary Education
+                -Economic & Statistics
+                -Elementary Education
+                -Information Technology & Communication (DOIT)
+                -Agriculture
+                -Excise
 
                 Guidelines:
                 - the titles of the problems should be space separated and not contain any special characters.even in the keys of the json.
                 - Keep the explanation concise (1–2 lines max).
                 - Classify each title under the most appropriate department.
+                - If any information is not available in the document, leave it blank.
                 - Use 'Miscellaneous' only if it doesn’t fall under any given department."""),
             ],
         ),
@@ -369,12 +354,30 @@ def generate(path):
         # print(chunk.text, end="")
     return result.text
 
+def get_form_data(email, chat_id):
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+
+    # Check if the row exists
+    cursor.execute("SELECT extracted_text FROM ocr WHERE email = ? AND chat_id = ?", (email, chat_id))
+    row = cursor.fetchone()
+
+    if row is not None:
+        # Return the ocr_table
+        ocr_table = row[0].replace("'",'"').replace("None","null")
+        # print("\n",ocr_table,"\n")
+        return ocr_table
+    else:
+        return None
+
 def process_image(path):
     response= generate(path)
+    out = response.split("```")
     # print(response)
-    result = json.loads(response[response.find("```json")+7:response.find("}\n```")+1].replace("\n",""))
+    tresult = json.loads(out[1][5:].replace("\n",""))
+    wresult = json.loads(out[3][5:].replace("\n",""))
     # print(result)
-    return result,response
+    return tresult,wresult
 
 def generate_chat(message, lastresponse):
     # use google genai to generate chat response

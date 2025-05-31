@@ -4,6 +4,7 @@ database.db
 /uploads
 /testscripts
 /templates2
+/test_files
 .env
 chatgpt-clone-master
 test.ipynb

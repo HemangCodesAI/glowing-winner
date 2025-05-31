@@ -858,7 +858,7 @@
                         alert('Upload failed: ' + response.statusText);
                     }
                 } catch (error) {
-                    alert('Error: ' + error.message);
+                    alert('Err5465or: ' + error.message);
                 } finally {
                     spinner.style.display = 'none';  // Hide spinner
                 }
@@ -869,6 +869,22 @@
 
                 // Clear any existing content in the container
                 container.innerHTML = '';
+                // add a link to the  a web-form
+                const link = document.createElement('a');
+                link.href = `/web-form`;
+                link.textContent = 'Go to Web Form';
+                link.style.display = 'block';
+                link.style.textAlign = 'center';
+                link.style.marginTop = '20px';
+                link.style.color = '#007bff';
+                link.style.textDecoration = 'none';
+                link.addEventListener('mouseover', () => {
+                    link.style.textDecoration = 'underline';
+                });
+                link.addEventListener('mouseout', () => {
+                    link.style.textDecoration = 'none';
+                });
+                container.appendChild(link);
                 console.log(data)
                 if (typeof data === 'string'){
                     // If data is a string, parse it as JSON
@@ -946,6 +962,9 @@
 
                 // Append the table to the container
                 container.appendChild(table);
+                // const link = document.createElement('a');
+                // link.href = `/web-form`;
+                // container.appendChild(link);
             }
             // Function to add a chat to recent chats
             function addRecentChat(title) {
