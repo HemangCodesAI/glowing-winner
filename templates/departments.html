@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Department Selection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: #f8fafc;
+            padding: 20px;
+            color: #334155;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #0688e5;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .selectors {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .selector-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .selector-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #475569;
+        }
+
+        .selector {
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            font-size: 16px;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        .selector:focus {
+            outline: none;
+            border-color: #0688e5;
+            box-shadow: 0 0 0 3px rgba(6, 136, 229, 0.1);
+        }
+
+        .selector:hover {
+            border-color: #0688e5;
+        }
+
+        .departments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .department-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .department-card:hover {
+            border-color: #0688e5;
+            box-shadow: 0 4px 12px rgba(6, 136, 229, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .department-card.selected {
+            border-color: #0688e5;
+            background: rgba(6, 136, 229, 0.05);
+        }
+
+        .department-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #0688e5, #0ea5e9);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .department-info {
+            flex: 1;
+        }
+
+        .department-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .department-desc {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        @media (max-width: 768px) {
+            .selectors {
+                grid-template-columns: 1fr;
+            }
+            
+            .departments-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+        }
+        /* Blur all unselected cards */
+        .department-card.blur {
+            filter: blur(2px);
+            opacity: 0.6;
+            pointer-events: none; /* optional: prevent clicking blurred cards */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Please Select Department</h1>
+        </div>
+
+        <div class="selectors">
+            <div class="selector-group">
+                <label for="department-select">Department</label>
+                <select id="department-select" class="selector">
+                    <option value="">Select Department</option>
+                    <option value="public-health">Public Health Engineering</option>
+                    <option value="panchayati-raj">Panchayati Raj</option>
+                    <option value="municipal">Local Self Government (Municipal Bodies)</option>
+                    <option value="revenue">Revenue</option>
+                    <option value="social-justice">Social Justice & Empowerment</option>
+                    <option value="food-supplies">Food Civil Supplies & Consumer Affairs Department</option>
+                    <option value="police">Police</option>
+                    <option value="mgnrega">Mgnrega</option>
+                    <option value="rural-development">Rural Development</option>
+                    <option value="medical-health">Medical & Health</option>
+                    <option value="cooperative">Cooperative</option>
+                    <option value="skills-employment">Skills, Employment and Entrepreneurship</option>
+                    <option value="pwd">Public Works (PWD)</option>
+                    <option value="labour">Labour</option>
+                    <option value="women-child">Women and Child Development</option>
+                    <option value="sec-edu">Secondary Education</option>
+                    <option value="eco-statistics">Economics and Statistics</option>
+                    <option value="ele-edu">Elementry Education</option>
+                    <option value="info-tech">Information Tech and Communication</option>
+                    <option value="agriculture">Agriculture</option>
+                    <option value="excise">Excise</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="departments-grid">
+            <div class="department-card" data-value="public-health">
+                <div class="department-icon">
+                    <img src="{{ url_for('static', filename='images/departments/DepartmentLogo202532501120.png') }}" alt="Public Health Icon" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="department-info">
+                    <div class="department-name">Public Health Engineering</div>
+                    <div class="department-desc">Water supply and sanitation services</div>
+                </div>
+            </div>
+
+            <div class="department-card" data-value="panchayati-raj">
+                <div class="department-icon">
+                    <img src="{{ url_for('static', filename='images/departments/DepartmentLogo202512700844.jpg') }}" alt="Public Health Icon" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="department-info">
+                    <div class="department-name">Panchayati Raj</div>
+                    <div class="department-desc">Local self-governance at village level</div>
+                </div>
+            </div>
+
+            <div class="department-card" data-value="municipal">
+                <div class="department-icon">
+                    <img src="{{ url_for('static', filename='images/departments/DepartmentLogo202512701256.jpg') }}" alt="Public Health Icon" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="department-info">
+                    <div class="department-name">Local Self Government (Municipal Bodies)</div>
+                    <div class="department-desc">Urban local governance and administration</div>
+                </div>
+            </div>
+
+            <div class="department-card" data-value="revenue">
+                <div class="department-icon">
+                    <img src="{{ url_for('static', filename='images/departments/DepartmentLogo202512700406.jpg') }}" alt="Public Health Icon" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="department-info">
+                    <div class="department-name">Revenue</div>
+                    <div class="department-desc">Land records and revenue collection</div>
+                </div>
+            </div>
+
+            <div class="department-card" data-value="social-justice">
+                <div class="department-icon">
+                    <img src="{{ url_for('static', filename='images/departments/DepartmentLogo202512700455.jpg') }}" alt="Public Health Icon" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="department-info">
+                    <div class="department-name">Social Justice & Empowerment</div>
+                    <div class="department-desc">Welfare programs for marginalized communities</div>
+                </div>
+            </div>
+
+            <div class="department-card" data-value="food-supplies">
+                <div class="department-icon">
+                    <img src="{{ url_for('static', filename='images/departments/DepartmentLogo202532401633.png') }}" alt="Public Health Icon" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="department-info">
+                    <div class="department-name">Food Civil Supplies & Consumer Affairs Department</div>
+                    <div class="department-desc">Food distribution and consumer protection</div>
+                </div>
+            </div>
+
+            <div class="department-card" data-value="police">
+                <div class="department-icon">
+                    <img src="{{ url_for('static', filename='images/departments/DepartmentLogo202512700750.jpg') }}" alt="Public Health Icon" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="department-info">
+                    <div class="department-name">Police</div>
+                    <div class="department-desc">Law enforcement and public safety</div>
+                </div>
+            </div>
+
+            <div class="department-card" data-value="mgnrega">
+                <div class="department-icon">
+                    <img src="{{ url_for('static', filename='images/departments/DepartmentLogo202512700813.jpg') }}" alt="Public Health Icon" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="department-info">
+                    <div class="department-name">Mgnrega</div>
+                    <div class="department-desc">Rural employment guarantee scheme</div>
+                </div>
+            </div>
+
+            <div class="department-card" data-value="rural-development">
+                <div class="department-icon">
+                    <img src="{{ url_for('static', filename='images/departments/DepartmentLogo202512700308.jpg') }}" alt="Public Health Icon" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="department-info">
+                    <div class="department-name">Rural Development</div>
+                    <div class="department-desc">Rural infrastructure and development programs</div>
+                </div>
+            </div>
+
+            <div class="department-card" data-value="medical-health">
+                <div class="department-icon">
+                    <img src="{{ url_for('static', filename='images/departments/DepartmentLogo202512700947.jpg') }}" alt="Public Health Icon" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="department-info">
+                    <div class="department-name">Medical & Health</div>
+                    <div class="department-desc">Healthcare services and public health</div>
+                </div>
+            </div>
+
+            <div class="department-card" data-value="cooperative">
+                <div class="department-icon">
+                    <img src="{{ url_for('static', filename='images/departments/DepartmentLogo202512903441.jpg') }}" alt="Public Health Icon" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="department-info">
+                    <div class="department-name">Cooperative</div>
+                    <div class="department-desc">Cooperative societies and credit systems</div>
+                </div>
+            </div>
+
+            <div class="department-card" data-value="skills-employment">
+                <div class="department-icon">
+                    <img src="{{ url_for('static', filename='images/departments/DepartmentLogo202512701030.jpg') }}" alt="Public Health Icon" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="department-info">
+                    <div class="department-name">Skills, Employment and Entrepreneurship</div>
+                    <div class="department-desc">Skill development and employment programs</div>
+                </div>
+            </div>
+
+            <div class="department-card" data-value="pwd">
+                <div class="department-icon">
+                    <img src="{{ url_for('static', filename='images/departments/DepartmentLogo202512701055.jpg') }}" alt="Public Health Icon" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="department-info">
+                    <div class="department-name">Public Works (PWD)</div>
+                    <div class="department-desc">Infrastructure construction and maintenance</div>
+                </div>
+            </div>
+
+            <div class="department-card" data-value="labour">
+                <div class="department-icon">
+                    <img src="{{ url_for('static', filename='images/departments/DepartmentLogo202512701127.jpg') }}" alt="Public Health Icon" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="department-info">
+                    <div class="department-name">Labour</div>
+                    <div class="department-desc">Labor laws and worker welfare</div>
+                </div>
+            </div>
+
+            <div class="department-card" data-value="women-child">
+                <div class="department-icon">
+                    <img src="{{ url_for('static', filename='images/departments/DepartmentLogo202512903541.jpg') }}" alt="Public Health Icon" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="department-info">
+                    <div class="department-name">Women and Child Development</div>
+                    <div class="department-desc">Women empowerment and child welfare programs</div>
+                </div>
+            </div>
+
+            <div class="department-card" data-value="sec-edu">
+                <div class="department-icon">
+                    <img src="{{ url_for('static', filename='images/departments/DepartmentLogo202512701221.jpg') }}" alt="Public Health Icon" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="department-info">
+                    <div class="department-name">Secondary Education</div>
+                    <div class="department-desc">Secondary Education and Ministery</div>
+                </div>
+            </div>
+
+            <div class="department-card" data-value="eco-statistics">
+                <div class="department-icon">
+                    <img src="{{ url_for('static', filename='images/departments/DepartmentLogo202512700334.jpg') }}" alt="Public Health Icon" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="department-info">
+                    <div class="department-name">Economics and Statistics</div>
+                    <div class="department-desc">Economics and Statistics Department</div>
+                </div>
+            </div>
+
+            <div class="department-card" data-value="ele-edu">
+                <div class="department-icon">
+                    <img src="{{ url_for('static', filename='images/departments/DepartmentLogo202512701313.jpg') }}" alt="Public Health Icon" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="department-info">
+                    <div class="department-name">Elementry Education</div>
+                    <div class="department-desc">Studies related to elementry students</div>
+                </div>
+            </div>
+
+            <div class="department-card" data-value="info-tech">
+                <div class="department-icon">
+                    <img src="{{ url_for('static', filename='images/departments/DepartmentLogo202512701332.jpg') }}" alt="Public Health Icon" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="department-info">
+                    <div class="department-name">Information Tech and Communication</div>
+                    <div class="department-desc">Technical related department managing all information</div>
+                </div>
+            </div>
+
+            <div class="department-card" data-value="agriculture">
+                <div class="department-icon">
+                    <img src="{{ url_for('static', filename='images/departments/DepartmentLogo202512701358.jpg') }}" alt="Public Health Icon" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="department-info">
+                    <div class="department-name">Agriculture</div>
+                    <div class="department-desc">agricultural schemes and such related domains</div>
+                </div>
+            </div>
+
+            <div class="department-card" data-value="women-child">
+                <div class="department-icon">
+                    <img src="{{ url_for('static', filename='images/departments/DepartmentLogo202512701416.jpg') }}" alt="Public Health Icon" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="department-info">
+                    <div class="department-name">Excise</div>
+                    <div class="department-desc">Excise Department</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const selected_from_src = "{{selected_dept}}";
+
+        if (selected_from_src) {
+            const selectedCard = document.querySelector(`[data-value="${selected_from_src}"]`);
+            if (selectedCard) {
+            selectedCard.classList.add('selected');
+            }
+            document.querySelectorAll(".department-card").forEach(card => {
+                if (card.getAttribute("data-value") !== selected_from_src) {
+                    card.classList.add("blur");
+                }
+            });
+        }
+        // Handle clicking outside cards to remove selection and blur
+        document.addEventListener('click', function(event) {
+            const clickedCard = event.target.closest('.department-card');
+            if (!clickedCard) {
+                document.querySelectorAll('.department-card.selected').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                document.querySelectorAll('.department-card.blur').forEach(card => {
+                    card.classList.remove('blur');
+                });
+                document.getElementById('department-select').value = '';
+            }
+        });
+    </script>
+
+    <script>
+        document.getElementById('department-select').addEventListener('change', function() {
+            const selectedValue = this.value;
+            const subjectSelect = document.getElementById('subject-select');
+            subjectSelect.innerHTML = '<option value="">Select Subject</option>';
+
+            document.querySelectorAll('.department-card.selected').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            if (selectedValue) {
+                // Highlight corresponding card
+                const selectedCard = document.querySelector(`[data-value="${selectedValue}"]`);
+                if (selectedCard) {
+                    selectedCard.classList.add('selected');
+                }
+            }
+        });
+
+        // Handle department card clicks
+        document.querySelectorAll('.department-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const value = this.getAttribute('data-value');
+                const departmentSelect = document.getElementById('department-select');
+                
+                // Update dropdown
+                departmentSelect.value = value;
+                
+                // Trigger change event
+                departmentSelect.dispatchEvent(new Event('change'));
+            });
+        });
+
+        // ── Handle department card clicks ──
+        document.querySelectorAll('.department-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const value = this.getAttribute('data-value');
+                window.location.href = '/departments/' + encodeURIComponent(value);
+            });
+        });
+    </script>
+</body>
+</html>

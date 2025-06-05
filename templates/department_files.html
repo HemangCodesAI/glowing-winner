@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Files for {{ department.replace('-', ' ')|title }}</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+      background: #f8fafc;
+      padding: 20px;
+      color: #334155;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: #0688e5;
+      font-size: 1.75rem;
+      margin-bottom: 20px;
+      text-transform: capitalize;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: white;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    th {
+      background-color: #f1f5f9;
+      color: #475569;
+      font-weight: 600;
+    }
+    tr:hover td {
+      background-color: #f8f9fa;
+    }
+
+    .no-files {
+      margin-top: 20px;
+      font-size: 1rem;
+      color: #64748b;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 20px;
+      text-decoration: none;
+      color: #0688e5;
+      font-weight: 500;
+    }
+    .back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Files for “{{ department.replace('-', ' ')|title }}”</h1>
+    {% if files %}
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Filename</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for fname in files %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td>
+                <a
+                  href="{{ url_for('view_file', dept=department, filename=fname) }}"
+                  style="text-decoration: none; color: #0688e5;"
+                >
+                  {{ fname }}
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="no-files">
+        <p>No files found for this department.</p>
+      </div>
+    {% endif %}
+
+    <a class="back-link" href="{{ url_for('departments') }}">
+      &larr; Back to Department Selection
+    </a>
+  </div>
+</body>
+</html>

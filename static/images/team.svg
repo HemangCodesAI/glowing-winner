@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   id="icon"
+   width="32"
+   height="32"
+   viewBox="0 0 32 32"
+   version="1.1"
+   sodipodi:docname="team2.svg"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview4"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="35.499503"
+     inkscape:cx="7.1972839"
+     inkscape:cy="25.225705"
+     inkscape:window-width="1280"
+     inkscape:window-height="770"
+     inkscape:window-x="0"
+     inkscape:window-y="34"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="icon" />
+  <defs
+     id="defs1">
+    <inkscape:path-effect
+       effect="fillet_chamfer"
+       id="path-effect4"
+       is_visible="true"
+       lpeversion="1"
+       nodesatellites_param="F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1"
+       radius="0"
+       unit="px"
+       method="auto"
+       mode="F"
+       chamfer_steps="1"
+       flexible="false"
+       use_knot_distance="true"
+       apply_no_radius="true"
+       apply_with_radius="true"
+       only_selected="false"
+       hide_knots="false" />
+    <style
+       id="style1">
+      .cls-1 {
+        fill: none;
+      }
+    </style>
+  </defs>
+  <title
+     id="title1">user--multiple</title>
+  <path
+     d="m 30.021414,28.311222 h -2.003059 v -4.30528 a 5.0133566,4.3101874 0 0 0 -5.007648,-4.305279 v -1.722112 a 7.0185189,6.0341073 0 0 1 7.010707,6.027391 z"
+     id="path1"
+     style="fill:#000000;stroke:#000000;stroke-width:0.557184;stroke-dasharray:none;stroke-opacity:1" />
+  <path
+     d="m 22.009177,28.311222 h -2.003059 v -4.30528 c -0.0033,-2.37658 -2.24335,-4.30248 -5.007648,-4.305279 H 8.989293 c -2.7642975,0.0028 -5.0043915,1.9287 -5.0076478,4.305279 v 4.30528 H 1.978586 v -4.30528 c 0.00453,-3.327223 3.1406766,-6.0235 7.010707,-6.027391 h 6.009177 c 3.87003,0.0039 7.006181,2.700168 7.010707,6.027391 z"
+     id="path2"
+     style="fill:#000000;stroke:#000000;stroke-width:0.557184;stroke-dasharray:none;stroke-opacity:1"
+     inkscape:path-effect="#path-effect4"
+     inkscape:original-d="m 22.009177,28.311222 h -2.003059 v -4.30528 A 5.0135569,4.3103596 0 0 0 14.99847,19.700663 H 8.989293 a 5.0135569,4.3103596 0 0 0 -5.0076478,4.305279 v 4.30528 H 1.978586 v -4.30528 a 7.0189195,6.0344518 0 0 1 7.010707,-6.027391 h 6.009177 a 7.0189195,6.0344518 0 0 1 7.010707,6.027391 z" />
+  <path
+     d="M20,2V4a5,5,0,0,1,0,10v2A7,7,0,0,0,20,2Z"
+     id="path3"
+     style="stroke-width:0.6;stroke-dasharray:none;fill:#000000;stroke:#000000;stroke-opacity:1" />
+  <path
+     d="M12,4A5,5,0,1,1,7,9a5,5,0,0,1,5-5m0-2a7,7,0,1,0,7,7A7,7,0,0,0,12,2Z"
+     id="path4"
+     style="stroke-width:0.6;stroke-dasharray:none;fill:#000000;stroke:#000000;stroke-opacity:1" />
+  <rect
+     id="_Transparent_Rectangle_"
+     data-name="&lt;Transparent Rectangle&gt;"
+     class="cls-1"
+     width="32"
+     height="32" />
+</svg>
