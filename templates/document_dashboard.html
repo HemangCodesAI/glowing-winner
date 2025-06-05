@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+    // Override native alert globally
+    window.alert = function(message) {
+        Swal.fire({
+        icon: 'info',
+        title: "Alert",
+        text: message,
+        confirmButtonText: 'OK',
+        confirmButtonColor: "#0688E5",
+        allowOutsideClick: false,
+        allowEscapeKey: false
+        });
+    };
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/document.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/process.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+
+    <style>
+        h1, h2, h3, h4, h5, h6, p{
+            font-family: Poppins;
+        }
+
+        h3{
+            font-size: 1.17em !important;
+            font-weight: bold !important;
+        }
+
+        hr{
+            opacity: 1 !important;
+        }
+
+        .svgimg{
+            width: 18px;
+            text-align: center;
+        }
+        .multilingual-dashboard{
+            color: #18164C;
+            width: 1000px;
+            height: 200px;
+            font-family: Inter;
+            font-size: 16px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 25.2px; /* 157.5% */
+            position: relative;
+            margin-top: 80px;
+            /* background-color: red; */
+            margin-left: 10px;
+
+
+        }
+    </style>
+
+    <style>
+        .submit-btn:disabled {
+        background-color: #ccc;
+        color: #666;
+         cursor: not-allowed;
+    }
+    </style>
+
+    <style>
+        .workspace{
+            width: auto;
+            height: auto;
+            padding-left: 26px;
+            font-size: 12px;
+            margin-top: -44px;
+            margin-left: 36px;
+            margin-bottom: 23px;
+        }
+        .heading-comp{
+            display: flex;
+            align-items: center;
+            width: 89%;
+            justify-content: space-around;
+            color: rgba(170, 163, 163, 0.73);
+            font-family: "Inter-Bold", sans-serif;
+            font-size: 17px;
+            margin-bottom: 4px;
+        }
+        .workspace-list{
+            font-size: 13px;
+            margin-top: -12px;
+        }
+        .workspacetoggle{
+            margin-top: -10px;
+            /* display: none; */
+            margin-bottom: 10px;
+            /* background: white; */
+            border-radius: 5px;
+            padding-left: 16px;
+            margin-right: 10px;
+            padding-right: 10px;
+            padding-bottom: 1px;
+            margin-left: -24px;
+            margin-top: 29px;
+            width: 342px;
+            position: absolute;
+            /* height: auto; */
+            overflow: auto;
+            /* z-index: 999999999999; */
+            max-height: 210px;
+            /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
+            border: 1px solid #8080807d;
+            min-height: 168px;
+            background-color: #f8f8f8; /* Light gray background */
+            border-radius: 10px; /* Rounded corners */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Soft shadow */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Modern font */
+        }
+        .search-container {
+            display: flex;
+            align-items: center;
+            border: 1px solid #8080804d;
+            border-radius: 14px;
+            padding: 5px 10px;
+            background-color: #f5f5f559;
+            margin-top: 9px;
+            width: 320px;
+            margin-bottom: -7px;
+        }
+
+        .search-input {
+            border: none; /* Remove default border */
+            outline: none; /* Remove outline */
+            border-radius: 14px;
+            flex: 1; /* Allow input to take full width */
+            padding-left: 5px; /* Padding inside input */
+            font-size: 16px; /* Font size */
+            color: #A7A1AE; /* Light gray text color */
+            background-color: transparent; /* Transparent background */
+            color: #000000a1;
+
+        }
+
+        .search-input::placeholder {
+            color: #A7A1AE; /* Placeholder color */
+        }
+        .search-icon {
+            color: #A7A1AE; /* Icon color */
+            margin-right: 7px; /* Space between icon and input */
+        }
+        .percentage_bar{
+            background: #dedada;
+            height: 3px;
+            width: 35px;
+            border-radius: 5px;
+        }
+        .mi_switch{
+            cursor: pointer;
+            position: absolute;
+            right: 20px;
+            top: 11px;
+        }
+        .workspace_owner{
+            font-size: 11px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .wk_s_link{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #8080801c;
+            padding: 8px 9px;
+            height: 17px;
+            border: none;
+            border-radius: 6px;
+            margin-bottom: 1%;
+            user-select: none;
+        }
+        .wk_s_link:hover{cursor: pointer;}
+        .navh{
+            margin-top: 8px;
+            margin-bottom: 1px;
+        }
+        .warning{
+            background-color: #e1aa00;
+            font-size: 16px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: flex;
+        }
+        .warning *{
+            margin-top: auto;
+            margin-bottom: auto;
+        }
+        .warning .btn{
+            margin: 0 20px;
+            background-color: black;
+            color: white;
+            border-radius: 5px;
+            padding: 5px 5px;
+            cursor:pointer;
+            text-decoration: none;
+            text-align: center;
+            line-height: 22px;
+        }
+        .closebtn{
+            cursor: pointer;
+            border: black solid 1px;
+            padding: 3px;
+            border-radius: 5px;
+            margin-left: auto;
+            display: flex;
+        }
+    </style>
+    <style>
+
+        .whitebg{
+            background-color: white;
+        }
+
+        .inputTags {
+            border-radius: 4px;
+            border: none;
+            color: black;
+            background-color: white;
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+            margin-top: 0.5rem;
+            max-width: 70%;
+        }
+        .inputTags::placeholder{
+            color: rgba(14, 14, 14, 0.26);
+            font-family: Inter;
+            font-size: 17px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: 25.2px; /* 180% */
+            /* padding-left: 5px; */
+        }
+
+        .text-div-domain {
+            margin: 1rem 0;
+            margin-bottom: 5rem;
+            background: rgb(241 242 247);
+            border-radius: 6px;
+            width: 100%;
+            box-sizing: border-box;
+            max-width: 70vw;
+            padding: 2rem 4rem;
+        }
+        form{
+            display: flex;
+            flex-direction: column;
+        }
+        h1{
+            margin-left: 2rem;
+        }
+        .domain-form-control{
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            flex-direction: column;
+        }
+        .btn-primary{
+            margin-left: auto;
+            background-color: rgb(6, 136, 229);
+            color: white;
+            padding: 0.5rem 2rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            white-space: nowrap;
+            text-align: center;
+            align-content: center;
+        }
+        .step{
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        .step-list{
+            display: flex;
+            align-items: center;
+            margin: 1rem 0;
+        }
+        .step-title-active{
+            color: rgb(6, 136, 229);
+        }
+        .circle{
+            background-color: white;
+            color: grey;
+            border-radius: 50%;
+            border: 1px grey solid;
+            height: 2.5rem;
+            width: 2.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .circle-active{
+            background-color: rgb(6, 136, 229);
+            color: white;
+            border-radius: 50%;
+            border: none;
+            height: 2.5rem;
+            width: 2.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .domain-hr{
+            height: 4px;
+            width: 8rem;
+            background-color: gray;
+            border: none;
+            margin: 0 0.3rem;
+        }
+        .domain-hr-active{
+            height: 4px;
+            width: 8rem;
+            background-color: rgb(6, 136, 229);
+            border: none;
+            margin: 0 0.3rem;
+        }
+
+        #g2-cradit-popup{
+            display: none;
+            background: rgb(6, 136, 229);
+            color: white;
+        }
+
+        #g2-cradit-popup a{
+            color: blue;
+            text-decoration: underline;
+        }
+
+        #g2-cradit-popup .closebtn {
+            border-color: white;
+            display: flex;
+        }
+     </style>
+     <style>
+        .navbutton {
+            margin-top: 40px;
+        }
+        .navbutton div{
+            font-size: 17px;
+        }
+        .navbutton img {
+            width: 20px;
+            height: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="window">
+        <div class="leftbar graybg" id="leftbar" style="height: 100%;">
+            <div class="hidebutton" onclick="hide('leftbar', 'show-leftbar')">X</div>
+            <div class="logo">
+                <img class="webtext-2" src="{{ url_for('static', filename='images/webtext-20.png') }}" />
+                <img class="website-2" src="{{ url_for('static', filename='images/website-20.png') }}" />
+            </div>
+
+            <div class="widgets">
+                <div class="navigation">
+                    <a class="navbutton" href="#">
+                        <img class="svgimg" src="{{ url_for('static', filename='images/mdi-home-outline0.svg') }}" style="wdith:20px; height: auto;"/>
+                        <div class="pad-left navtext" style="font-size: 17px;">Home</div>
+                    </a>
+                    <div class="sublinks documenttranslate pad-left">
+                        <a class="navbutton" id="newdocproject" href="#">
+                            <img class="svgimg" src="{{ url_for('static', filename='images/add.svg') }}" />
+                            <div class="pad-left navtext">New Project</div>
+                        </a>
+                        <a class="navbutton" href="#">
+                            <img class="svgimg" src="{{ url_for('static', filename='images/box.svg') }}" />
+                            <div class="pad-left navtext">Projects</div>
+                        </a>
+                        <a class="navbutton" href="#">
+                            <img class="svgimg" src="{{ url_for('static', filename='images/team.svg') }}" />
+                            <div class="pad-left navtext">Team</div>
+                        </a>
+                        <a class="navbutton" href="#">
+                            <img class="svgimg" src="{{ url_for('static', filename='images/asset.svg') }}" />
+                            <div class="pad-left navtext">Linguistic assets</div>
+                        </a>
+                    </div>
+                </div>
+                <div class="navigation">
+                    <a class="navbutton" href="#" id="help-btn">
+                        <img class="svgimg" src="{{ url_for('static', filename='images/jam-help0.svg') }}" />
+                        <div class="pad-left navtext">Help</div>
+                    </a>
+                    <a href="#" class="navbutton">
+                        <i class="fa fa-sign-out svgimg"></i>
+                        <div class="pad-left navtext">Log out</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="mainwindow graybg">
+            <div class="header-line">
+                <div class="logo hamburger-menu">
+                    <img class="webtext-2" src="{{ url_for('static', filename='images/webtext-20.png') }}" />
+                    <img class="website-2" src="{{ url_for('static', filename='images/website-20.png') }}" />
+                </div>
+                <div class="headmessage margin-right cooltext" style="flex:1; text-align: center;">AI-Driven Translation: Master Every Language</div>
+                <div class="headinfo margin-right">
+                    <div class="words">
+                    </div>
+                </div>
+            </div>
+            <div class="dashboard-message dashboard-gap">
+                <h2><span id="greeting">Good Morning</span> User!!</h2>
+                <h4>Welcome to the Gateway of Global Communication</h4>
+            </div>
+            <div class="dashboard-table" style="margin-bottom: 0px; margin-top: 10px;">
+                <div class="tabs">
+                    <div id="doc-tab" class="tab-button active-tab" >DastavejWizard</div>
+                </div>
+            </div>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                <ul style="color: red;">
+                    {% for msg in messages %}
+                    <li>{{ msg }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            {% endwith %}
+            <div class="tab-content" id="doc-content">
+                <div class="fullsize dashboard-gap">
+                    <div class="freshpage">
+                        <div class="pagemessage">Begin a fresh project</div>
+                        <label class="drag-box" id="drag-box-label" for="fileInput">
+                            <form method="POST" action="{{ url_for('cmo') }}" enctype="multipart/form-data" id="uploadForm">
+                                <img src="{{ url_for('static', filename='images/file-icon.svg') }}" alt="" class="file-icon" style="width: 100px; height: 100px; align-self: center;">
+                                <div class="drag-box-message">
+                                    <h2>Select your file <span style="color: #04a2e9;">here</span></h2>
+                                    <h5 class="cardtext" style="max-width: 100%;">Upload your Word, Excel, Powerpoint, PDF,
+                                        Images</h5>
+                                </div>
+                                <input type="file" name="file" id="fileInput" class="file-input" style="display: none;"/>
+                            </form>
+                        </label>
+                    </div>
+                </div>
+            </div>
+          <!-- ───── Loader Overlay (hidden by default) ───── -->
+        <style>
+            #loader-overlay {
+                position: fixed; /* Or absolute, depending on your layout needs */
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.7); /* Darker overlay for better contrast */
+                z-index: 9999; /* Ensure it's on top */
+                display: none; /* Already set, but good to have in CSS */
+                align-items: center;
+                justify-content: center;
+                backdrop-filter: blur(5px); /* Frosted glass effect */
+                -webkit-backdrop-filter: blur(5px); /* Safari support */
+            }
+
+            #loader-box {
+                background-color: #ffffff;
+                padding: 30px 40px;
+                border-radius: 12px;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+                text-align: center;
+                color: #333;
+                width: 320px; /* A bit wider for better spacing */
+            }
+
+            /* Spinner Animation */
+            .spinner {
+                width: 50px;
+                height: 50px;
+                position: relative;
+                margin: 0 auto 25px auto; /* Centered with space below */
+            }
+
+            .double-bounce1, .double-bounce2 {
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+                background-color: #007bff; /* A nice blue, change as you like */
+                opacity: 0.6;
+                position: absolute;
+                top: 0;
+                left: 0;
+                animation: sk-bounce 2.0s infinite ease-in-out;
+            }
+
+            .double-bounce2 {
+                animation-delay: -1.0s;
+            }
+
+            @keyframes sk-bounce {
+                0%, 100% {
+                    transform: scale(0.0);
+                    -webkit-transform: scale(0.0);
+                } 50% {
+                    transform: scale(1.0);
+                    -webkit-transform: scale(1.0);
+                }
+            }
+
+            #status-text {
+                font-size: 1.1em; /* Slightly larger font */
+                color: #555;
+                margin-bottom: 20px; /* More space below status text */
+                font-weight: 500;
+            }
+
+            #progress-container {
+                width: 100%;
+                background-color: #e0e0e0;
+                border-radius: 25px; /* Pill shape */
+                height: 12px; /* Thicker bar */
+                overflow: hidden; /* Ensures progress bar stays within bounds */
+                box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+            }
+
+            #progress-bar {
+                width: 0%; /* Initial width */
+                height: 100%;
+                background-color: #007bff; /* Same blue as spinner */
+                border-radius: 25px; /* Pill shape */
+                transition: width 0.4s ease-in-out, background-color 0.4s ease; /* Smooth transition */
+                background-image: linear-gradient(
+                    45deg,
+                    rgba(255, 255, 255, .15) 25%,
+                    transparent 25%,
+                    transparent 50%,
+                    rgba(255, 255, 255, .15) 50%,
+                    rgba(255, 255, 255, .15) 75%,
+                    transparent 75%,
+                    transparent
+                ); /* Subtle stripes */
+                background-size: 40px 40px; /* Size of the stripes */
+                animation: progress-bar-stripes 1s linear infinite; /* Animated stripes */
+            }
+
+            @keyframes progress-bar-stripes {
+                from {
+                    background-position: 40px 0;
+                }
+                to {
+                    background-position: 0 0;
+                }
+            }
+
+            /* Flex-center class (already in your HTML style, but good to have in CSS) */
+            .flex-center {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        </style>
+        <div id="loader-overlay" class="flex-center">
+            <div id="loader-box">
+                <div class="spinner">
+                    <div class="double-bounce1"></div>
+                    <div class="double-bounce2"></div>
+                </div>
+                <div id="status-text">Performing OCR…</div>
+                <div id="progress-container">
+                    <div id="progress-bar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+<script>
+  (function() {
+    const uploadForm = document.getElementById("uploadForm");
+    const fileInput = document.getElementById("fileInput");
+    const loaderOverlay = document.getElementById("loader-overlay");
+    const statusText = document.getElementById("status-text");
+    const progressBar = document.getElementById("progress-bar");
+
+    // Fake‐loader configuration
+    const FIRST_PHASE_PERCENT = 50;    // 0 → 50%
+    const SECOND_PHASE_PERCENT = 90;   // 50 → 90%
+    const TOTAL_DURATION = 10000;      // 10 seconds total for phases 1+2
+
+    let currentPercent = 0;
+    let phaseTimer = null;
+    let waitForResponse = false;
+
+    function startFakeLoader(xhr) {
+      // 1) Show overlay and initialize
+      loaderOverlay.style.display = "flex";
+      currentPercent = 0;
+      progressBar.style.width = "0%";
+      statusText.textContent = "Performing OCR…";
+
+      // 2) Phase 1: animate 0 → 50% over (TOTAL_DURATION * 0.5)
+      const phaseOneDuration = TOTAL_DURATION * 0.5; // e.g. 5000 ms
+      const phaseOneSteps = FIRST_PHASE_PERCENT;     // 50 steps (1% each)
+      const phaseOneInterval = phaseOneDuration / phaseOneSteps;
+
+      let stepCount = 0;
+      phaseTimer = setInterval(() => {
+        stepCount++;
+        currentPercent = Math.min(stepCount, FIRST_PHASE_PERCENT);
+        progressBar.style.width = currentPercent + "%";
+        if (currentPercent >= FIRST_PHASE_PERCENT) {
+          clearInterval(phaseTimer);
+          startSecondPhase(xhr);
+        }
+      }, phaseOneInterval);
+    }
+
+    function startSecondPhase(xhr) {
+      // 3) Phase 2: animate 50 → 90% over (TOTAL_DURATION * 0.4)
+      statusText.textContent = "Analysing document using NLP…";
+      const phaseTwoDuration = TOTAL_DURATION * 0.4; // e.g. 4000 ms
+      const phaseTwoSteps = SECOND_PHASE_PERCENT - FIRST_PHASE_PERCENT; // 90-50=40
+      const phaseTwoInterval = phaseTwoDuration / phaseTwoSteps;
+
+      let stepCount = 0;
+      phaseTimer = setInterval(() => {
+        stepCount++;
+        currentPercent = FIRST_PHASE_PERCENT + Math.min(stepCount, phaseTwoSteps);
+        progressBar.style.width = currentPercent + "%";
+        if (currentPercent >= SECOND_PHASE_PERCENT) {
+          clearInterval(phaseTimer);
+          waitForResponse = true;
+        }
+      }, phaseTwoInterval);
+    }
+
+    function finishLoaderAndRedirect(xhr) {
+      if (!waitForResponse) {
+        clearInterval(phaseTimer);
+      }
+      statusText.textContent = "Finalizing…";
+      progressBar.style.width = "100%";
+      setTimeout(() => {
+        const redirectURL = xhr.responseURL;
+        window.location.href = redirectURL;
+      }, 300);
+    }
+
+    // Intercept the native form submit
+    uploadForm.addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const file = fileInput.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "{{ url_for('cmo') }}", true);
+
+      xhr.addEventListener("load", function() {
+        // Server finished (OCR + NLP) and redirected
+        finishLoaderAndRedirect(xhr);
+      });
+      xhr.addEventListener("error", function() {
+        alert("Error processing your request. Please try again.");
+        loaderOverlay.style.display = "none";
+      });
+
+      // Start the fake loader sequence immediately, then send form
+      startFakeLoader(xhr);
+      xhr.send(formData);
+    });
+
+    // When a file is chosen, programmatically submit the form
+    fileInput.addEventListener("change", function() {
+      uploadForm.dispatchEvent(new Event("submit"));
+    });
+  })();
+</script>
+
+    
+    <script src="{{ url_for('static', filename='js/makerequest.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/document_progress.js') }}"></script>
+    <script>
+        // Get the current hour of the day
+        const hours = new Date().getHours();
+        let greeting = '';
+
+        // Determine the greeting message
+        if (hours >= 5 && hours < 12) {
+            greeting = "Good Morning";
+        } else if (hours >= 12 && hours < 17) {
+            greeting = "Good Afternoon";
+        } else {
+            greeting = "Good Evening";
+        }
+
+        // Set the greetingMessage variable
+        let greetingMessage = greeting;
+
+        // Find the HTML element with the ID 'greeting' and set its content
+        document.getElementById("greeting").innerText = greetingMessage;
+    </script>
+
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HZCZV5N120"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-HZCZV5N120');
+    </script>
+
+</body>
+</html>

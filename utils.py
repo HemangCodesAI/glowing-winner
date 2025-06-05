@@ -376,7 +376,9 @@ def process_image(path):
     # print(response)
     tresult = json.loads(out[1][5:].replace("\n",""))
     wresult = json.loads(out[3][5:].replace("\n",""))
-    # print(result)
+    # print(tresult)
+    print("___________________")
+    # print(wresult)
     return tresult,wresult
 
 def generate_chat(message, lastresponse):
@@ -412,4 +414,3 @@ def generate_chat(message, lastresponse):
         config=generate_content_config,
     ) 
     return result.text
-

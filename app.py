@@ -1,7 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+import os
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash, abort, send_from_directory
 from werkzeug.utils import secure_filename
 import utils
 import json
+import shutil
+from datetime import datetime
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 UPLOAD_FOLDER = 'uploads'
@@ -111,3 +114,150 @@ def web_form():
     return render_template('web_form.html', form_data=json.loads(json.dumps(form_data)))
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+# 2. (Optional) Restrict allowed extensions
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "pdf", "txt", "csv"}
+
+# 1. Where to save uploads (adjust as needed)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")  # e.g., /path/to/your/project/uploads
+DEPT_FILES_BASE = os.path.join(BASE_DIR, "department_files")
+
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16 MB limit (optional)
+
+
+def allowed_file(filename):
+    return (
+        "." in filename
+        and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+    )
+
+@app.route('/cmo', methods=['GET', 'POST'])
+def cmo():
+    print("Accessed CMO route")
+    if request.method == "POST":
+        print("Received POST request for file upload")
+        # 3a. Ensure we got a file part
+        if "file" not in request.files:
+            flash("No file part in request")
+            print("No file part in request")
+            return redirect(request.url)
+
+        file = request.files["file"]
+
+        # 3b. Did the user actually select something?
+        if file.filename == "":
+            flash("No file chosen")
+            print("No file chosen")
+            return redirect(request.url)
+
+        # 3c. (Optional) Check extension
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            save_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+            file.save(save_path)
+            print(f"File saved to {save_path}")
+
+            print("file sent for classification")
+            result,response = utils.process_image(save_path)
+            utils.add_to_ocr_db(session['email'], filename, str(result), str(response))
+            session['chat_id'] = filename
+            # Extract department from the response JSON
+            Department = response.get("Department", "unknown")
+            print(f"Department extracted: {Department}")
+            department = Department.lower().replace(" ", "-")
+
+            # Create department-specific folder path
+            dept_folder = os.path.join(DEPT_FILES_BASE, department)
+
+            # Check if department folder exists, if not use "unknown"
+            if not os.path.exists(dept_folder):
+                os.makedirs(dept_folder, exist_ok=True)
+
+            # Move the file to the appropriate department folder
+            dest_path = os.path.join(dept_folder, filename)
+            # Check if file already exists in destination
+            if os.path.exists(dest_path):
+                # Generate timestamp-based filename
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                name, ext = os.path.splitext(filename)
+                new_filename = f"{name}_{timestamp}{ext}"
+                dest_path = os.path.join(dept_folder, new_filename)
+            shutil.move(save_path, dest_path)
+            print(f"File moved to {dest_path}")
+            # 3d. Optionally, you can store the file path in a database or session
+
+            return redirect(url_for("departments", selected_dept=department))
+        else:
+            flash(f"Allowed types: {', '.join(ALLOWED_EXTENSIONS)}")
+            print("File type not allowed")
+            return redirect(request.url)
+
+    # If GET, simply render the form
+    return render_template("document_dashboard.html")
+
+@app.route('/departments', methods=['GET', 'POST'])
+def departments():
+    selected_dept = request.args.get("selected_dept", "")
+    return render_template('departments.html', selected_dept=selected_dept)
+
+@app.route("/departments/<dept>")
+def department_files(dept):
+    """
+    Given a department name (e.g. “public-health”), look into
+    department_files/public-health/, list all files there, and pass them
+    to department_files.html for display in a table.
+    """
+    # 1) Construct the absolute path to that department’s folder
+    folder_path = os.path.join(DEPT_FILES_BASE, dept)
+
+    # 2) If it’s not an existing directory, return 404
+    if not os.path.isdir(folder_path):
+        abort(404, description=f"No such department: {dept}")
+
+    # 3) List all files inside (ignore subdirectories)
+    all_items = os.listdir(folder_path)
+    file_list = [
+        fname for fname in all_items
+        if os.path.isfile(os.path.join(folder_path, fname))
+    ]
+
+    # 4) Render a template that shows a table of these file names
+    return render_template(
+        "department_files.html",
+        department=dept,
+        files=file_list
+    )
+
+@app.route("/departments/<dept>/files/<filename>")
+def serve_file(dept, filename):
+    """
+    Sends back the file so it can be embedded inline. Do NOT force attachment.
+    """
+    folder_path = os.path.join(DEPT_FILES_BASE, dept)
+    if not os.path.isdir(folder_path):
+        abort(404)
+
+    safe_path = os.path.join(folder_path, filename)
+    if not os.path.isfile(safe_path):
+        abort(404)
+
+    # send_from_directory with as_attachment=False so browser may display inline:
+    return send_from_directory(folder_path, filename, as_attachment=False)
+
+@app.route("/departments/<dept>/view/<filename>")
+def view_file(dept, filename):
+    form_data = utils.get_form_data(session.get('email'),session.get('chat_id'))
+    print(form_data)
+    folder_path = os.path.join(DEPT_FILES_BASE, dept)
+    if not os.path.isdir(folder_path):
+        abort(404)
+
+    safe_path = os.path.join(folder_path, filename)
+    if not os.path.isfile(safe_path):
+        abort(404)
+
+    # Pass both dept and filename so template can build URLs
+    return render_template("file_view.html", department=dept, filename=filename, form_data=json.loads(json.dumps(form_data)))
