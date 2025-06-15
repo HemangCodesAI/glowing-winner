@@ -520,13 +520,13 @@
 
         // use form_data to populate the form
         document.addEventListener('DOMContentLoaded', function() {
-            const formData = {{ form_data | tojson |safe }};
+            const formData = {{ form_data |tojson }};
             let jformData=JSON.parse(formData)
             console.log("Department value:", jformData.Department);
             console.log("Type of formData:", typeof jformData);
             
             // formData=JSON.parse(formData.replace("None",null))
-            if (formData) {
+            if (jformData) {
                 document.getElementById('department').value = jformData.Department;
                 document.getElementById('subject').value = jformData.subject || '';
                 document.getElementById('grievanceDetails').value = jformData.grievance_details || '';

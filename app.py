@@ -5,6 +5,22 @@ import utils
 import json
 import shutil
 from datetime import datetime
+import sqlite3
+def get_files(email, department):
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    # select the ocr table from the ocr table
+    cursor.execute('''
+        SELECT chat_id FROM ocr WHERE email = ?  AND department = ?
+        ''', (email, department))
+    result = cursor.fetchall()
+    for i in range(len(result)):
+        result[i] = result[i][0]
+    conn.close()
+    if result:
+        return result
+    else:
+        return []
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 UPLOAD_FOLDER = 'uploads'
@@ -57,7 +73,7 @@ def dosignup():
     password = data.get('password', '')
     utils.create_user(email, password)
     session['email'] = email
-    return jsonify({"message": "SignUp Success","redirect": "/home"})
+    return jsonify({"message": "SignUp Success","redirect": "/cmo"})
 
 @app.route('/dologin',methods=['POST'])
 def dologin():
@@ -67,7 +83,7 @@ def dologin():
     if utils.check_password(email, password):
         session['email'] = email
 
-        return jsonify({"response": "Login Success", "redirect": "/home"})
+        return jsonify({"response": "Login Success", "redirect": "/cmo"})
     else:
         return jsonify({"response": "Login Failed"})
 
@@ -110,10 +126,9 @@ def get_chat_history():
 @app.route('/web-form', methods=['GET', 'POST'])
 def web_form():
     form_data = utils.get_form_data(session.get('email'),session.get('chat_id'))
-    print(form_data)
+    # print(form_data)
     return render_template('web_form.html', form_data=json.loads(json.dumps(form_data)))
-if __name__ == '__main__':
-    app.run(debug=True)
+
 
 
 # 2. (Optional) Restrict allowed extensions
@@ -162,13 +177,14 @@ def cmo():
 
             print("file sent for classification")
             result,response = utils.process_image(save_path)
-            utils.add_to_ocr_db(session['email'], filename, str(result), str(response))
-            session['chat_id'] = filename
+            
             # Extract department from the response JSON
             Department = response.get("Department", "unknown")
             print(f"Department extracted: {Department}")
-            department = Department.lower().replace(" ", "-")
-
+            departments=["public-health-engineering","panchayati-raj","local-self-government(municipal-bodies)","revenue","social-justice-and-empowerment","food-civil-supplies-and-consumer-affairs-department","police","mgnrega","rural-development","medical-and-health","cooperative","skills,-employment-and-entrepreneurship","public-works-(pwd)","labour","women-and-child-development","secondary-education","economics-and-statistics","elementry-education","information-tech-and-ommunication","agriculture","excise"]
+            department = Department.lower().replace(" ", "-").replace("&", "and")
+            if department not in departments:
+                department = "miscellaneous"
             # Create department-specific folder path
             dept_folder = os.path.join(DEPT_FILES_BASE, department)
 
@@ -183,8 +199,10 @@ def cmo():
                 # Generate timestamp-based filename
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 name, ext = os.path.splitext(filename)
-                new_filename = f"{name}_{timestamp}{ext}"
-                dest_path = os.path.join(dept_folder, new_filename)
+                filename = f"{name}_{timestamp}{ext}"
+                dest_path = os.path.join(dept_folder, filename)
+            utils.add_to_ocr_db(session['email'], filename, str(result), str(response), department)
+            session['chat_id'] = filename
             shutil.move(save_path, dest_path)
             print(f"File moved to {dest_path}")
             # 3d. Optionally, you can store the file path in a database or session
@@ -201,6 +219,7 @@ def cmo():
 @app.route('/departments', methods=['GET', 'POST'])
 def departments():
     selected_dept = request.args.get("selected_dept", "")
+    
     return render_template('departments.html', selected_dept=selected_dept)
 
 @app.route("/departments/<dept>")
@@ -218,7 +237,8 @@ def department_files(dept):
         abort(404, description=f"No such department: {dept}")
 
     # 3) List all files inside (ignore subdirectories)
-    all_items = os.listdir(folder_path)
+    print(session.get('email'), dept)
+    all_items = get_files(session['email'],dept)
     file_list = [
         fname for fname in all_items
         if os.path.isfile(os.path.join(folder_path, fname))
@@ -250,7 +270,8 @@ def serve_file(dept, filename):
 @app.route("/departments/<dept>/view/<filename>")
 def view_file(dept, filename):
     form_data = utils.get_form_data(session.get('email'),session.get('chat_id'))
-    print(form_data)
+    print(session.get('email'),session.get('chat_id'))
+    # print(form_data)
     folder_path = os.path.join(DEPT_FILES_BASE, dept)
     if not os.path.isdir(folder_path):
         abort(404)
@@ -258,6 +279,11 @@ def view_file(dept, filename):
     safe_path = os.path.join(folder_path, filename)
     if not os.path.isfile(safe_path):
         abort(404)
-
+    # print(form_data)
+    # python_obj = ast.literal_eval(form_data)
+    # json_string = json.dumps(python_obj)
+    # print(json.loads(json_string))
     # Pass both dept and filename so template can build URLs
-    return render_template("file_view.html", department=dept, filename=filename, form_data=json.loads(json.dumps(form_data)))
+    return render_template("file_view.html", department=dept, filename=filename, form_data=form_data)
+if __name__ == '__main__':
+    app.run(debug=True)

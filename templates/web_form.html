@@ -424,7 +424,7 @@
 
         // use form_data to populate the form
         document.addEventListener('DOMContentLoaded', function() {
-            const formData = {{ form_data | tojson |safe }};
+            const formData = {{ form_data | tojson | safe }};
             let jformData=JSON.parse(formData)
             console.log("Department value:", jformData.Department);
             console.log("Type of formData:", typeof jformData);

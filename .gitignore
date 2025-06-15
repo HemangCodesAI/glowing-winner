@@ -1,5 +1,6 @@
 /__pycache__/
 database.db
+/department_files
 /env
 /uploads
 /testscripts

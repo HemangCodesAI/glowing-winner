@@ -23,7 +23,7 @@ def get_chat_history(email, chat_id):
     row = cursor.fetchone()
     conn.close()
     # print(email, chat_id)
-    print(table)
+    # print(table)
 
     if row is not None:
         # Return the list of chat IDs
@@ -80,15 +80,15 @@ def get_recent_chats(email):
     else:
         return []
 
-def add_to_ocr_db(email, chat_id, ocr_table,text):
+def add_to_ocr_db(email, chat_id, ocr_table,text,dept):
     conn = sqlite3.connect('database.db')
     # print(text)
     cursor = conn.cursor()
     # insert into a new row in the ocr table
     cursor.execute('''
-        INSERT INTO ocr (chat_id, email, ocr_table, extracted_text)
-        VALUES (?, ?, ?, ?)
-        ''', (chat_id, email, ocr_table, text))
+        INSERT INTO ocr (chat_id, email, ocr_table, extracted_text,department)
+        VALUES (?, ?, ?, ?, ?)
+        ''', (chat_id, email, ocr_table, text, dept))
     conn.commit()
     conn.close()
     print("Added to OCR DB")
@@ -196,6 +196,7 @@ def init_db():
             email TEXT NOT NULL,
             ocr_table TEXT,
             extracted_text TEXT,
+             TEXT,
             FOREIGN KEY (email) REFERENCES users(email)
         )
     ''')
@@ -281,7 +282,9 @@ def generate(path):
             }   
         }
         ```
-        **form data**
+        
+        **form data Starts here**
+
         ```json
         {
             "Department": "[Department responsible for the grievance]",
@@ -308,7 +311,7 @@ def generate(path):
                     file_uri=files[0].uri,
                     mime_type=files[0].mime_type,
                 ),
-                types.Part.from_text(text=f"""you are given a documnet in imageor pdf format, go thru it using ocr.i want to extracct some key information form this documnet i want to get a json response .which is in this format:{template}
+                types.Part.from_text(text=f"""you are given a documnet in imageor pdf format, go thru it using ocr.i want to extracct some key information form this documnet i want to get 2 json responses .which is in this format:{template}
 
                 Use only the following departments:
                 - Public Health Engineering
@@ -344,15 +347,42 @@ def generate(path):
     ]
     generate_content_config = types.GenerateContentConfig(
         response_mime_type="text/plain",
+        
     )
 
     result= client.models.generate_content(
         model=model,
+        
         contents=contents,
         config=generate_content_config,
     )
         # print(chunk.text, end="")
     return result.text
+
+def replace_quotes_except_possessive(text):
+    """
+    Replace all single quotes (') with double quotes ("), 
+    except those in possessive forms like "John's", "Mary's", etc.
+    """
+    # Pattern to match possessive forms: letter + 's + space
+    possessive_pattern = r"[a-zA-Z]\'[a-zA-Z]"
+    
+    # Find all possessive matches and their positions
+    possessive_matches = []
+    for match in re.finditer(possessive_pattern, text):
+        # Store the start and end position of the single quote in each match
+        quote_pos = match.start() + 1  # Position of the single quote
+        possessive_matches.append(quote_pos)
+    
+    # Convert string to list for easy manipulation
+    text_list = list(text)
+    
+    # Replace all single quotes with double quotes, except protected ones
+    for i, char in enumerate(text_list):
+        if char == "'" and i not in possessive_matches:
+            text_list[i] = '"'
+    
+    return ''.join(text_list)
 
 def get_form_data(email, chat_id):
     conn = sqlite3.connect('database.db')
@@ -364,21 +394,24 @@ def get_form_data(email, chat_id):
 
     if row is not None:
         # Return the ocr_table
-        ocr_table = row[0].replace("'",'"').replace("None","null")
+        ocr_table = replace_quotes_except_possessive(row[0].replace("None","null "))
         # print("\n",ocr_table,"\n")
         return ocr_table
     else:
         return None
 
 def process_image(path):
-    response= generate(path)
-    out = response.split("```")
-    # print(response)
-    tresult = json.loads(out[1][5:].replace("\n",""))
-    wresult = json.loads(out[3][5:].replace("\n",""))
-    # print(tresult)
-    print("___________________")
-    # print(wresult)
+    try:
+        response= generate(path)
+        out = response.split("```")
+        # print(response)
+        tresult = json.loads(out[1][5:].replace("\n",""))
+        wresult = json.loads(out[3][5:].replace("\n",""))
+        # print(tresult)
+        print("___________________")
+        # print(wresult)
+    except:
+        process_image(path)
     return tresult,wresult
 
 def generate_chat(message, lastresponse):
@@ -395,7 +428,7 @@ def generate_chat(message, lastresponse):
 
         Question: {message}
         Answer:"""
-    print(prompt)
+    # print(prompt)
     contents = [
         types.Content(
             role="user",
@@ -414,3 +447,4 @@ def generate_chat(message, lastresponse):
         config=generate_content_config,
     ) 
     return result.text
+

@@ -53,45 +53,45 @@ function checkforsignature(sobj){
     }
 }
 
-const chatSocket = new WebSocket(
-    'wss://'
-    + 'multilipi-document-translation.centralindia.cloudapp.azure.com'
-    + '/ws/progress/'
-    + "roomName"
-    + '/'
-);
+// const chatSocket = new WebSocket(
+//     'wss://'
+//     + 'multilipi-document-translation.centralindia.cloudapp.azure.com'
+//     + '/ws/progress/'
+//     + "roomName"
+//     + '/'
+// );
 
-chatSocket.onmessage = function (e) {
-    const data = JSON.parse(e.data);
-    // console.log('recieved ', data);
-    sobj = document.getElementsByClassName('progressdoc');
-    for (i = 0; i < sobj.length; i++) {
-        if (sobj[i].getAttribute('signature') != '') {
-            // console.log(sobj[i].getAttribute('signature'), "  ==  ", data['message'][i]);
-            docs = document.getElementsByClassName("DOC" + sobj[i].getAttribute('signature'))[0];
-            // console.log("linear-gradient(to right, rgb(59, 130, 246) " + data['message'][i] + "%, rgb(255, 255, 255) " + (parseInt(data['message'][i])+1) + "%)")
-            // docs.style.backgroundImage = "linear-gradient(to right, rgb(59, 130, 246) " + data['message'][i] + "%, rgb(255, 255, 255) " + (parseInt(data['message'][i]) + 1) + "%)"
-            docs.getElementsByClassName('percentage_bar')[0].style.backgroundImage = "linear-gradient(to right, rgb(59, 130, 246) " + data['message'][i] + "%, rgb(255, 255, 255) " + (parseInt(data['message'][i]) + 1) + "%)"
-            docs.getElementsByClassName("percentage")[0].innerText = parseInt(data['message'][i]) + "%";
-            if (parseInt(data['message'][i]) >= 99.99) {
-                // docs.parentElement.innerHTML = "<a href='/document/view/" + docs.id.slice(3, docs.id.length) + "/tgt' target='_blank'><img src='{% static 'svg/raphael_view.svg' %}'' alt=''></a></a><a href='/document/edit/" + docs.id.slice(3, docs.id.length) + `'><img src="{% static 'svg/flowbite_edit-solid.svg' %}" alt=''></a></a>`;
-                done_code = `<div class="complete">
-                                <a target="_blank" href="/document/view/${docs.id.slice(3, docs.id.length)}" class="header-buttons">
-                                    <img src="https://multilipidashboard.blob.core.windows.net/static/svg/raphael_view.svg" alt=""></a>
+// chatSocket.onmessage = function (e) {
+//     const data = JSON.parse(e.data);
+//     // console.log('recieved ', data);
+//     sobj = document.getElementsByClassName('progressdoc');
+//     for (i = 0; i < sobj.length; i++) {
+//         if (sobj[i].getAttribute('signature') != '') {
+//             // console.log(sobj[i].getAttribute('signature'), "  ==  ", data['message'][i]);
+//             docs = document.getElementsByClassName("DOC" + sobj[i].getAttribute('signature'))[0];
+//             // console.log("linear-gradient(to right, rgb(59, 130, 246) " + data['message'][i] + "%, rgb(255, 255, 255) " + (parseInt(data['message'][i])+1) + "%)")
+//             // docs.style.backgroundImage = "linear-gradient(to right, rgb(59, 130, 246) " + data['message'][i] + "%, rgb(255, 255, 255) " + (parseInt(data['message'][i]) + 1) + "%)"
+//             docs.getElementsByClassName('percentage_bar')[0].style.backgroundImage = "linear-gradient(to right, rgb(59, 130, 246) " + data['message'][i] + "%, rgb(255, 255, 255) " + (parseInt(data['message'][i]) + 1) + "%)"
+//             docs.getElementsByClassName("percentage")[0].innerText = parseInt(data['message'][i]) + "%";
+//             if (parseInt(data['message'][i]) >= 99.99) {
+//                 // docs.parentElement.innerHTML = "<a href='/document/view/" + docs.id.slice(3, docs.id.length) + "/tgt' target='_blank'><img src='{% static 'svg/raphael_view.svg' %}'' alt=''></a></a><a href='/document/edit/" + docs.id.slice(3, docs.id.length) + `'><img src="{% static 'svg/flowbite_edit-solid.svg' %}" alt=''></a></a>`;
+//                 done_code = `<div class="complete">
+//                                 <a target="_blank" href="/document/view/${docs.id.slice(3, docs.id.length)}" class="header-buttons">
+//                                     <img src="https://multilipidashboard.blob.core.windows.net/static/svg/raphael_view.svg" alt=""></a>
                                 
-                                <a href="/document/edit/${docs.id.slice(3, docs.id.length)}" class="header-buttons">
-                                    <img src="https://multilipidashboard.blob.core.windows.net/static/svg/flowbite_edit-solid.svg" alt=""></a>
+//                                 <a href="/document/edit/${docs.id.slice(3, docs.id.length)}" class="header-buttons">
+//                                     <img src="https://multilipidashboard.blob.core.windows.net/static/svg/flowbite_edit-solid.svg" alt=""></a>
                                 
-                            </div>`
-                docs.parentElement.innerHTML = done_code;
-            }
-        }
-    }
-};
+//                             </div>`
+//                 docs.parentElement.innerHTML = done_code;
+//             }
+//         }
+//     }
+// };
 
-chatSocket.onclose = function (e) {
-    console.error('Chat socket closed unexpectedly');
-};
+// chatSocket.onclose = function (e) {
+//     console.error('Chat socket closed unexpectedly');
+// };
 
 function extractData() {
     var allsignatures = [];
